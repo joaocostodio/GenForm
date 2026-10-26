@@ -8,5 +8,10 @@ import { RouterOutlet } from '@angular/router';
   templateUrl: './app.html',
 })
 export class App {
-  protected readonly title = signal('aula1');
+  protected readonly title = signal('Projeto Aula Angular');
+  protected readonly cliques = signal(0);
+
+  protected incrementar() {
+    this.cliques.update((n) => n + 1);
+  }
 }
