@@ -1,0 +1,102 @@
+.novos {
+  background: #fff;
+  border-bottom: 1px solid var(--borda);
+}
+
+.novos h2 {
+  font-weight: 400;
+  font-size: 16px;
+  color: var(--texto);
+}
+
+.modelos {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.modelo {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 160px;
+  padding: 0;
+  border: 0;
+  background: none;
+  text-align: left;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.miniatura {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  height: 120px;
+  padding: 16px;
+  border: 1px solid var(--borda);
+  border-radius: 4px;
+  background: color-mix(in srgb, var(--cor) 14%, #fff);
+}
+
+.miniatura.branco {
+  align-items: center;
+  justify-content: center;
+  background: #fff;
+  font-size: 48px;
+  color: var(--cor);
+}
+
+.miniatura i {
+  height: 14px;
+  border-radius: 3px;
+  background: #fff;
+  border-top: 3px solid var(--cor);
+}
+
+.modelo:hover .miniatura {
+  border-color: var(--cor);
+}
+
+h2 {
+  font-size: 18px;
+  font-weight: 500;
+  margin: 20px 0 8px;
+}
+
+.lista {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+  padding-right: 8px;
+  border: 1px solid var(--borda);
+  border-left: 6px solid var(--cor);
+  border-radius: var(--raio);
+  background: #fff;
+}
+
+.faixa {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  padding: 14px 16px;
+  text-decoration: none;
+}
+
+.faixa strong {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.acoes {
+  display: flex;
+}

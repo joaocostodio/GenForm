@@ -6,7 +6,10 @@
     "start": "ng serve",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
-    "test": "ng test"
+    "test": "ng test",
+    "api": "node --watch server/server.mjs",
+    "dev": "concurrently -n api,web -c blue,magenta \"npm:api\" \"npm:start\"",
+    "start:prod": "node server/server.mjs"
   },
   "private": true,
   "packageManager": "npm@12.2.1",
@@ -17,6 +20,7 @@
     "@angular/forms": "^22.2.0",
     "@angular/platform-browser": "^22.2.0",
     "@angular/router": "^22.2.0",
+    "express": "^5.3.0",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0"
   },
@@ -24,6 +28,7 @@
     "@angular/build": "^22.2.4",
     "@angular/cli": "^22.2.4",
     "@angular/compiler-cli": "^22.2.0",
+    "concurrently": "^10.0.6",
     "jsdom": "^30.0.0",
     "prettier": "^3.8.1",
     "typescript": "~6.0.2",

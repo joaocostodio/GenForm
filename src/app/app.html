@@ -1,10 +1,5 @@
-<main class="container">
-  <h1>Hello, {{ title() }}</h1>
-  <p>Se você está vendo esta página, o projeto Angular está rodando.</p>
-
-  <button type="button" (click)="incrementar()">
-    Cliquei {{ cliques() }} {{ cliques() === 1 ? 'vez' : 'vezes' }}
-  </button>
-</main>
-
 <router-outlet />
+
+@if (aviso.mensagem()) {
+  <div class="aviso-flutuante" role="status">{{ aviso.mensagem() }}</div>
+}

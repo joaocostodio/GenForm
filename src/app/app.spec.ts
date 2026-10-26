@@ -1,24 +1,26 @@
 import { TestBed } from '@angular/core/testing';
+import { provideRouter } from '@angular/router';
 import { App } from './app';
+import { AvisoService } from './shared/aviso.service';
 
 describe('App', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [App],
-    })
-      .compileComponents();
+      providers: [provideRouter([])],
+    }).compileComponents();
   });
 
-  it('should create the app', () => {
+  it('cria o app', () => {
     const fixture = TestBed.createComponent(App);
-    const app = fixture.componentInstance;
-    expect(app).toBeTruthy();
+    expect(fixture.componentInstance).toBeTruthy();
   });
 
-  it('should render title', async () => {
+  it('mostra o aviso flutuante quando há mensagem', async () => {
     const fixture = TestBed.createComponent(App);
+    TestBed.inject(AvisoService).mostrar('Link copiado');
     await fixture.whenStable();
-    const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.querySelector('h1')?.textContent).toContain('Hello, Projeto Aula Angular');
+    const el = fixture.nativeElement as HTMLElement;
+    expect(el.querySelector('.aviso-flutuante')?.textContent).toContain('Link copiado');
   });
 });

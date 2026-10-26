@@ -1,0 +1,63 @@
+<header class="topo">
+  <a routerLink="/" class="marca">
+    <span class="logo" aria-hidden="true">≡</span>
+    <span>Formulários</span>
+  </a>
+</header>
+
+<section class="novos">
+  <div class="pagina">
+    <h2 class="suave">Iniciar um novo formulário</h2>
+    <div class="modelos">
+      <button type="button" class="modelo" (click)="criar()" [disabled]="criando()">
+        <span class="miniatura branco" aria-hidden="true">+</span>
+        <span>Em branco</span>
+      </button>
+      @for (modelo of modelos; track modelo.nome) {
+        <button type="button" class="modelo" (click)="criar(modelo.dados)" [disabled]="criando()">
+          <span class="miniatura" [style.--cor]="modelo.dados.cor" aria-hidden="true">
+            <i></i><i></i><i></i>
+          </span>
+          <span>{{ modelo.nome }}</span>
+        </button>
+      }
+    </div>
+  </div>
+</section>
+
+<main class="pagina">
+  <h2>Formulários recentes</h2>
+
+  @if (carregando()) {
+    <p class="carregando">Carregando...</p>
+  } @else if (erro()) {
+    <div class="vazio">
+      <p>Não consegui falar com o servidor. Ele está rodando? (<code>npm run dev</code>)</p>
+      <button type="button" class="btn" (click)="carregar()">Tentar de novo</button>
+    </div>
+  } @else if (forms().length === 0) {
+    <p class="vazio">Nenhum formulário ainda. Comece com um dos modelos acima.</p>
+  } @else {
+    <ul class="lista">
+      @for (form of forms(); track form.id) {
+        <li class="item" [style.--cor]="form.cor">
+          <a class="faixa" [routerLink]="['/forms', form.id, 'editar']">
+            <strong>{{ form.titulo }}</strong>
+            <span class="suave">
+              {{ form.totalRespostas }} {{ form.totalRespostas === 1 ? 'resposta' : 'respostas' }}
+              · editado {{ form.atualizadoEm | date: 'dd/MM/yy HH:mm' }}
+              @if (!form.aceitandoRespostas) {
+                · <em>fechado</em>
+              }
+            </span>
+          </a>
+          <div class="acoes">
+            <a class="btn-icone" [routerLink]="['/forms', form.id, 'respostas']" title="Ver respostas">📊</a>
+            <button type="button" class="btn-icone" (click)="aviso.copiarLink(form.id)" title="Copiar link">🔗</button>
+            <button type="button" class="btn-icone" (click)="excluir(form)" title="Excluir">🗑</button>
+          </div>
+        </li>
+      }
+    </ul>
+  }
+</main>
