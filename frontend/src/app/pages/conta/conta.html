@@ -1,0 +1,50 @@
+<header class="topo">
+  <a routerLink="/" class="marca">
+    <span class="logo" aria-hidden="true">≡</span>
+    <span>Formulários</span>
+  </a>
+  <span class="espaco"></span>
+  <app-menu-usuario />
+</header>
+
+<main class="pagina">
+  <h1 class="titulo-pagina">Minha conta</h1>
+
+  <section class="cartao">
+    <h2>Perfil</h2>
+    <p class="suave">E-mail: {{ auth.usuario()?.email }}</p>
+    <form class="linha" [formGroup]="formNome" (ngSubmit)="salvarNome()">
+      <label class="campo-rotulado flex">
+        <span>Nome</span>
+        <input class="campo-caixa" formControlName="nome" autocomplete="name" />
+      </label>
+      <button type="submit" class="btn" [disabled]="formNome.invalid || formNome.pristine || salvandoNome()">Salvar</button>
+    </form>
+  </section>
+
+  <section class="cartao">
+    <h2>Trocar senha</h2>
+    <form [formGroup]="formSenha" (ngSubmit)="trocarSenha()" novalidate>
+      <label class="campo-rotulado">
+        <span>Senha atual</span>
+        <input class="campo-caixa" type="password" formControlName="senhaAtual" autocomplete="current-password" />
+        @if (erroSenha('senhaAtual')) {
+          <small class="msg-erro">{{ erroSenha('senhaAtual') }}</small>
+        }
+      </label>
+      <label class="campo-rotulado">
+        <span>Nova senha</span>
+        <input class="campo-caixa" type="password" formControlName="novaSenha" autocomplete="new-password" />
+        @if (erroSenha('novaSenha')) {
+          <small class="msg-erro">{{ erroSenha('novaSenha') }}</small>
+        }
+      </label>
+      <button type="submit" class="btn" [disabled]="salvandoSenha()">Trocar senha</button>
+    </form>
+  </section>
+
+  <section class="cartao linha">
+    <span class="flex">Sair desta conta neste navegador</span>
+    <button type="button" class="btn perigo" (click)="sair()">Sair</button>
+  </section>
+</main>

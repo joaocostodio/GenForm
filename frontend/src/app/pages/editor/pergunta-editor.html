@@ -1,0 +1,175 @@
+@let id = c.id.value;
+<article class="cartao editavel pergunta" [formGroup]="grupo()">
+  <div class="alca" cdkDragHandle title="Arrastar para reordenar" aria-hidden="true">⠿</div>
+
+  <div class="linha cabeca">
+    <input [id]="'p-' + id" class="campo medio flex" formControlName="titulo" placeholder="Pergunta" aria-label="Texto da pergunta" />
+    <select class="campo-caixa tipo" formControlName="tipo" aria-label="Tipo da pergunta">
+      @for (t of tipos; track t.valor) {
+        <option [value]="t.valor">{{ t.icone }}&nbsp;&nbsp;{{ t.rotulo }}</option>
+      }
+    </select>
+  </div>
+
+  @if (mostrarDescricao()) {
+    <input class="campo descricao" formControlName="descricao" placeholder="Descrição" aria-label="Descrição da pergunta" />
+  }
+
+  <!-- Corpo conforme o tipo -->
+  @switch (tipo()) {
+    @case ('curta') { <p class="previa curta">Texto de resposta curta</p> }
+    @case ('paragrafo') { <p class="previa">Texto de resposta longa</p> }
+    @case ('data') { <p class="previa curta">Dia, mês, ano 📅</p> }
+    @case ('hora') { <p class="previa curta">Hora 🕒</p> }
+
+    @case ('escala') {
+      <div class="escala" formGroupName="escala">
+        <div class="linha">
+          <select class="campo-caixa" formControlName="min" aria-label="Início da escala">
+            <option [ngValue]="0">0</option>
+            <option [ngValue]="1">1</option>
+          </select>
+          <span>até</span>
+          <select class="campo-caixa" formControlName="max" aria-label="Fim da escala">
+            @for (n of maximos; track n) {
+              <option [ngValue]="n">{{ n }}</option>
+            }
+          </select>
+        </div>
+        <div class="linha sem-quebra">
+          <span class="suave">{{ c.escala.controls.min.value }}</span>
+          <input class="campo" formControlName="rotuloMin" placeholder="Rótulo (opcional)" aria-label="Rótulo do início" />
+        </div>
+        <div class="linha sem-quebra">
+          <span class="suave">{{ c.escala.controls.max.value }}</span>
+          <input class="campo" formControlName="rotuloMax" placeholder="Rótulo (opcional)" aria-label="Rótulo do fim" />
+        </div>
+      </div>
+    }
+
+    @case ('grade') {
+      <div class="grade-editor" formGroupName="grade">
+        @for (onde of ['linhas', 'colunas']; track onde) {
+          @let itens = onde === 'linhas' ? c.grade.controls.linhas : c.grade.controls.colunas;
+          <div [formArrayName]="onde">
+            <h3>{{ onde === 'linhas' ? 'Linhas' : 'Colunas' }}</h3>
+            @for (item of itens.controls; track item; let j = $index) {
+              <div class="linha sem-quebra">
+                <span class="marcador">{{ onde === 'linhas' ? j + 1 + '.' : '○' }}</span>
+                <input [id]="'g-' + id + '-' + onde + '-' + j" class="campo flex" [formControlName]="j" [attr.aria-label]="onde + ' ' + (j + 1)" />
+                <button type="button" class="btn-icone" (click)="removerItem($any(onde), j)" [disabled]="itens.length === 1" title="Remover">✕</button>
+              </div>
+            }
+            <button type="button" class="btn texto" (click)="adicionarItem($any(onde))">+ Adicionar {{ onde === 'linhas' ? 'linha' : 'coluna' }}</button>
+          </div>
+        }
+      </div>
+    }
+
+    @default {
+      <!-- multipla, caixas e lista -->
+      <div formArrayName="opcoes">
+        @for (opcao of c.opcoes.controls; track opcao; let j = $index) {
+          <div class="opcao linha sem-quebra" [formGroupName]="j" [class.correta]="modoTeste() && mostrarGabarito() && opcao.controls.correta.value">
+            <span class="marcador" aria-hidden="true">{{ marcador(j) }}</span>
+            <input [id]="'o-' + id + '-' + j" class="campo flex" formControlName="texto" [attr.aria-label]="'Opção ' + (j + 1)" />
+            @if (modoTeste() && mostrarGabarito()) {
+              <button type="button" class="btn-icone certo-btn" (click)="alternarCorreta(j)"
+                [attr.aria-pressed]="opcao.controls.correta.value" title="Marcar como resposta correta">✓</button>
+            }
+            @if (temDesvio() && c.usarDesvios.value) {
+              <select class="campo-caixa desvio" formControlName="irPara" aria-label="Ir para depois desta opção">
+                @for (d of destinos(); track d.valor) {
+                  <option [value]="d.valor">{{ d.rotulo }}</option>
+                }
+              </select>
+            }
+            <button type="button" class="btn-icone" (click)="removerOpcao(j)" [disabled]="c.opcoes.length === 1" title="Remover opção">✕</button>
+          </div>
+        }
+      </div>
+      @if (temOutro() && c.permitirOutro.value) {
+        <div class="opcao linha sem-quebra">
+          <span class="marcador" aria-hidden="true">{{ marcador(0) }}</span>
+          <span class="previa flex">Outro...</span>
+          <button type="button" class="btn-icone" (click)="c.permitirOutro.setValue(false)" title="Remover 'Outro'">✕</button>
+        </div>
+      }
+      <div class="linha">
+        <button type="button" class="btn texto" (click)="adicionarOpcao()">+ Adicionar opção</button>
+        @if (temOutro() && !c.permitirOutro.value) {
+          <span class="suave">ou</span>
+          <button type="button" class="btn texto" (click)="c.permitirOutro.setValue(true)">adicionar "Outro"</button>
+        }
+      </div>
+    }
+  }
+
+  <!-- Validação de resposta -->
+  @if (regras().length && c.validacao.controls.ativa.value) {
+    @let regra = c.validacao.controls.regra.value;
+    <div class="painel" formGroupName="validacao">
+      <h3>Validação de resposta</h3>
+      <div class="linha">
+        <select class="campo-caixa" formControlName="regra" aria-label="Regra de validação">
+          @for (r of regras(); track r.valor) {
+            <option [value]="r.valor">{{ r.rotulo }}</option>
+          }
+        </select>
+        @if (regra === 'numero' || regra === 'tamanho' || regra === 'selecao') {
+          <label class="mini">mín. <input class="campo-caixa" type="number" formControlName="min" /></label>
+          <label class="mini">máx. <input class="campo-caixa" type="number" formControlName="max" /></label>
+        }
+      </div>
+      <input class="campo" formControlName="mensagem" placeholder="Texto de erro personalizado (opcional)" aria-label="Texto de erro personalizado" />
+    </div>
+  }
+
+  <!-- Gabarito (modo teste) -->
+  @if (modoTeste() && corrigivel() && mostrarGabarito()) {
+    <div class="painel gabarito" formGroupName="quiz">
+      <h3>Gabarito</h3>
+      <label class="mini">Pontos <input class="campo-caixa" type="number" min="0" formControlName="pontos" /></label>
+      @if (tipo() === 'curta') {
+        <textarea class="campo-caixa largo" rows="3" formControlName="aceitas"
+          placeholder="Respostas aceitas, uma por linha (maiúsculas e espaços extras são ignorados)"></textarea>
+      } @else {
+        <p class="suave">Clique no ✓ ao lado das opções corretas.</p>
+      }
+      <input class="campo" formControlName="feedback" placeholder="Explicação mostrada após o envio (opcional)" aria-label="Explicação da resposta" />
+    </div>
+  } @else if (modoTeste() && !corrigivel()) {
+    <p class="suave sem-nota">Este tipo de pergunta não vale nota no modo teste.</p>
+  }
+
+  <footer class="rodape linha">
+    @if (modoTeste() && corrigivel()) {
+      @let pontos = c.quiz.controls.pontos.value;
+      <button type="button" class="btn texto" (click)="mostrarGabarito.set(!mostrarGabarito())">
+        {{ mostrarGabarito() ? 'Concluir' : 'Gabarito' }} ({{ pontos }} {{ pontos === 1 ? 'ponto' : 'pontos' }})
+      </button>
+    }
+    <span class="espaco"></span>
+    <button type="button" class="btn-icone" (click)="mover.emit(-1)" [disabled]="primeira()" title="Mover para cima">↑</button>
+    <button type="button" class="btn-icone" (click)="mover.emit(1)" [disabled]="ultima()" title="Mover para baixo">↓</button>
+    <button type="button" class="btn-icone" (click)="duplicar.emit()" title="Duplicar">⧉</button>
+    <button type="button" class="btn-icone" (click)="remover.emit()" title="Excluir pergunta">🗑</button>
+    <span class="divisor" aria-hidden="true"></span>
+    <label class="chave">
+      Obrigatória
+      <input type="checkbox" formControlName="obrigatoria" />
+    </label>
+    <details class="mais" #menu>
+      <summary class="btn-icone" title="Mais opções">⋮</summary>
+      <div class="menu-mais" (change)="menu.open = false">
+        <label><input type="checkbox" [checked]="mostrarDescricao()" (change)="alternar('descricao', $event)" /> Descrição</label>
+        @if (regras().length) {
+          <label><input type="checkbox" [checked]="c.validacao.controls.ativa.value" (change)="alternar('validacao', $event)" /> Validação de resposta</label>
+        }
+        @if (temDesvio()) {
+          <label><input type="checkbox" [checked]="c.usarDesvios.value" (change)="alternar('desvios', $event)" /> Ir para a seção com base na resposta</label>
+        }
+      </div>
+    </details>
+  </footer>
+</article>

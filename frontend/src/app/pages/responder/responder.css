@@ -1,0 +1,207 @@
+h1 {
+  margin: 0 0 8px;
+  font-size: 30px;
+  font-weight: 400;
+}
+
+h2 {
+  margin: 0 0 6px;
+  font-size: 20px;
+  font-weight: 500;
+}
+
+hr {
+  margin: 18px -24px;
+  border: 0;
+  border-top: 1px solid var(--borda);
+}
+
+.descricao {
+  white-space: pre-line;
+  margin: 0 0 8px;
+}
+
+.aviso-obrigatorio {
+  margin: 16px 0 0;
+  font-size: 14px;
+  color: var(--erro);
+}
+
+fieldset {
+  min-width: 0;
+}
+
+.titulo {
+  float: left;
+  width: 100%;
+  margin-bottom: 14px;
+  padding: 0;
+  font-size: 16px;
+}
+
+.titulo + * {
+  clear: both;
+}
+
+.curta {
+  width: 50%;
+  min-width: 220px;
+}
+
+.opcao {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 0;
+  cursor: pointer;
+}
+
+.lista {
+  min-width: 200px;
+}
+
+.escala {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+.escala .rotulo {
+  padding: 0 10px 2px;
+  font-size: 14px;
+}
+
+.ponto {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  min-width: 36px;
+  cursor: pointer;
+}
+
+.acoes {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 16px;
+}
+
+.espaco {
+  flex: 1;
+}
+
+.geral {
+  margin-top: 16px;
+}
+
+.link {
+  margin-left: -10px;
+  text-decoration: underline;
+}
+
+.rodape {
+  margin-top: 32px;
+  text-align: center;
+  font-size: 12px;
+}
+
+.pontos {
+  margin-left: 8px;
+  font-size: 13px;
+  font-weight: 400;
+}
+
+.descricao-pergunta {
+  clear: both;
+  margin: -6px 0 12px;
+}
+
+.quem {
+  margin: 8px 0 0;
+}
+
+.outro {
+  flex: 1;
+  min-width: 120px;
+  max-width: 320px;
+}
+
+.limpar {
+  margin-top: 4px;
+  float: right;
+}
+
+.progresso {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.progresso .barra-progresso {
+  flex: 1;
+}
+
+.grade-rolagem {
+  overflow-x: auto;
+}
+
+.grade {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.grade th,
+.grade td {
+  padding: 10px 8px;
+  text-align: center;
+  font-weight: 400;
+}
+
+.grade tbody tr:nth-child(odd) {
+  background: #f8f9fa;
+}
+
+.grade tbody th {
+  text-align: left;
+}
+
+.nota {
+  font-size: 18px;
+}
+
+.resultado {
+  border-left: 6px solid var(--erro);
+}
+
+.resultado.acertou {
+  border-left-color: #188038;
+}
+
+.titulo-resultado {
+  margin: 0;
+  font-weight: 600;
+}
+
+.feedback {
+  margin: 8px 0 0;
+  padding: 8px 12px;
+  border-radius: 4px;
+  background: #f8f9fa;
+  font-size: 14px;
+}
+
+@media (max-width: 600px) {
+  .curta {
+    width: 100%;
+  }
+
+  hr {
+    margin: 18px -16px;
+  }
+}

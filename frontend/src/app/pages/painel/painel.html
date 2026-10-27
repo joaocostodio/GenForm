@@ -1,0 +1,99 @@
+<header class="topo">
+  <a routerLink="/" class="marca">
+    <span class="logo" aria-hidden="true">≡</span>
+    <span>Formulários</span>
+  </a>
+  <label class="busca">
+    <span class="sr-only">Pesquisar formulários</span>
+    <span aria-hidden="true">🔍</span>
+    <input type="search" placeholder="Pesquisar" [value]="busca()" (input)="busca.set(lerTexto($event))" />
+  </label>
+  <app-menu-usuario />
+</header>
+
+<section class="novos">
+  <div class="pagina">
+    <h2 class="suave">Iniciar um novo formulário</h2>
+    <div class="modelos">
+      <button type="button" class="modelo" (click)="criar()" [disabled]="criando()">
+        <span class="miniatura branco" aria-hidden="true">+</span>
+        <span>Em branco</span>
+      </button>
+      @for (modelo of modelos; track modelo.nome) {
+        @let dados = modelo.dados();
+        <button type="button" class="modelo" (click)="criar(modelo.dados())" [disabled]="criando()">
+          <span class="miniatura" [style.--cor]="dados.cor" aria-hidden="true">
+            <i></i><i></i><i></i>
+          </span>
+          <span>{{ modelo.nome }}</span>
+        </button>
+      }
+    </div>
+  </div>
+</section>
+
+<main class="pagina">
+  <div class="linha cabeca-lista">
+    <h2 class="flex">Olá, {{ auth.usuario()?.nome }}! Seus formulários</h2>
+    <label>
+      <span class="sr-only">Filtrar</span>
+      <select class="campo-caixa" [value]="filtro()" (change)="filtro.set($any(lerTexto($event)))">
+        <option value="todos">Todos</option>
+        <option value="abertos">Aceitando respostas</option>
+        <option value="fechados">Fechados</option>
+        <option value="testes">Testes (quiz)</option>
+      </select>
+    </label>
+    <label>
+      <span class="sr-only">Ordenar</span>
+      <select class="campo-caixa" [value]="ordem()" (change)="ordem.set($any(lerTexto($event)))">
+        <option value="recentes">Mais recentes</option>
+        <option value="nome">Nome (A-Z)</option>
+        <option value="respostas">Mais respostas</option>
+      </select>
+    </label>
+  </div>
+
+  @if (carregando()) {
+    <p class="carregando">Carregando...</p>
+  } @else if (erro()) {
+    <div class="vazio">
+      <p>Não consegui falar com o servidor. Ele está rodando? (<code>npm run dev</code> na raiz do projeto)</p>
+      <button type="button" class="btn" (click)="carregar()">Tentar de novo</button>
+    </div>
+  } @else if (forms().length === 0) {
+    <p class="vazio">Você ainda não tem formulários. Comece com um dos modelos acima.</p>
+  } @else if (visiveis().length === 0) {
+    <p class="vazio">Nenhum formulário encontrado com esses filtros.</p>
+  } @else {
+    <ul class="lista">
+      @for (form of visiveis(); track form.id) {
+        <li class="item" [style.--cor]="form.cor">
+          <a class="faixa" [routerLink]="['/forms', form.id, 'editar']">
+            <strong>{{ form.titulo }}</strong>
+            <span class="suave">
+              {{ form.totalRespostas }} {{ form.totalRespostas === 1 ? 'resposta' : 'respostas' }}
+              · editado {{ form.atualizadoEm | date: 'dd/MM/yy HH:mm' }}
+            </span>
+            <span class="etiquetas">
+              @if (!form.aceitandoRespostas) {
+                <span class="chip cinza">Fechado</span>
+              }
+              @if (form.modoTeste) {
+                <span class="chip">Teste</span>
+              }
+            </span>
+          </a>
+          <div class="acoes">
+            <a class="btn-icone" [routerLink]="['/forms', form.id, 'respostas']" title="Ver respostas">📊</a>
+            <button type="button" class="btn-icone" (click)="enviar(form)" title="Enviar (link, QR code)">🔗</button>
+            <button type="button" class="btn-icone" (click)="duplicar(form)" title="Duplicar">⧉</button>
+            <button type="button" class="btn-icone" (click)="excluir(form)" title="Excluir">🗑</button>
+          </div>
+        </li>
+      }
+    </ul>
+  }
+</main>
+
+<app-compartilhar [formId]="selecionado()" />

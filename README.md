@@ -1,74 +1,116 @@
-# Projeto Aula Angular — nosso "Google Forms"
+# Projeto Aula Angular — clone do Google Forms
 
-Clone do Google Forms feito com **Angular 22** (frontend) e **Node.js + Express** (backend).
+Aplicação para **criar formulários, compartilhar um link e ver as respostas**, inspirada no Google Forms.
+O repositório é dividido em duas partes independentes:
 
-## O que dá pra fazer
+| Pasta | O que é | Tecnologia | Documentação |
+|---|---|---|---|
+| [`backend/`](backend/) | API REST: contas, formulários, respostas, regras e segurança | Node.js 20+ · Express 5 | [backend/README.md](backend/README.md) |
+| [`frontend/`](frontend/) | Interface que roda no navegador | Angular 22 · TypeScript · Reactive Forms | [frontend/README.md](frontend/README.md) |
 
-- **Painel**: lista os formulários, cria em branco ou a partir de modelos, copia o link, exclui.
-- **Editor** (salva sozinho): título, descrição, cor do tema, seções e perguntas.
-  - Tipos: resposta curta, parágrafo, múltipla escolha, caixas de seleção, lista suspensa e escala linear.
-  - Obrigatória, duplicar, excluir, mover para cima/baixo, adicionar/remover opções.
-- **Responder** (`/f/:id`): o link que vai para os colegas. Uma página por seção, validação de obrigatórias.
-- **Respostas**: resumo com gráficos de barra, respostas individuais, abrir/fechar o formulário, exportar CSV, excluir.
+> ⚠️ **Projeto de aula:** ao criar conta, use um **e-mail fictício** (ex: `seunome@teste.com`).
+> O sistema não envia e-mails e não confere se o endereço existe. Não use seu e-mail real.
+
+---
+
+## Como as partes conversam
+
+```
+ Navegador (Angular)                         Servidor (Node + Express)
+┌──────────────────────────┐   HTTP + JSON  ┌──────────────────────────────┐
+│ frontend/src/app         │ ─────────────► │ backend/src/server.mjs       │
+│  pages/   (telas)        │   /api/...     │  rotas/auth.mjs    /api/auth │
+│  services/ (HttpClient)  │ ◄───────────── │  rotas/forms.mjs   /api/forms│
+│  core/    (guards)       │  cookie sessão │  rotas/publico.mjs /api/publico
+└──────────────────────────┘                │  validacao.mjs  (regras)     │
+                                            │  seguranca.mjs  (senha/sessão)│
+                                            │  db.mjs → backend/data/db.json│
+                                            └──────────────────────────────┘
+```
+
+- O **frontend** nunca acessa o banco: ele só chama a API em `/api/...`.
+- O **backend** é a fonte da verdade: valida tudo de novo (obrigatórias, regras, nota do teste),
+  mesmo que o frontend já tenha validado.
+- **Desenvolvimento:** o Angular roda na porta 4200 e repassa `/api` para o backend na 3000
+  (`frontend/proxy.conf.json`).
+- **Produção:** o backend também entrega o Angular compilado, então tudo fica num endereço só.
+
+## Funcionalidades
+
+**Contas**
+- Criar conta, entrar, sair, trocar nome e senha. Cada pessoa só vê e edita os próprios formulários.
+
+**Editor** (salva sozinho)
+- 9 tipos de pergunta: resposta curta, parágrafo, múltipla escolha, caixas de seleção, lista suspensa,
+  escala linear, grade de múltipla escolha, data e hora.
+- Descrição na pergunta, opção "Outro", obrigatória, duplicar, excluir, **arrastar e soltar** (inclusive entre seções).
+- **Validação de resposta**: e-mail, link, número (mín./máx.), quantidade de caracteres, quantidade de caixas marcadas.
+- **Seções** e **lógica condicional**: "ir para a seção X" conforme a resposta, ou "após a seção, enviar".
+- Cor do tema e modelos prontos (pesquisa, inscrição, teste).
+
+**Configurações**
+- Aceitar respostas, **exigir login**, **1 resposta por pessoa**, **data limite**, **limite de respostas**,
+  barra de progresso, embaralhar perguntas, mensagem de confirmação.
+- **Modo teste (quiz)**: gabarito, pontos, explicação e nota automática para quem responde.
+
+**Compartilhar**
+- Link, **QR code** (com download) e código `<iframe>` para incorporar em outro site.
+
+**Respostas**
+- Resumo com gráficos, respostas individuais (com nome, e-mail e nota quando houver), média da turma,
+  abrir/fechar o formulário, exportar CSV (abre no Excel) e excluir.
+
+**Painel**
+- Busca, filtro (abertos, fechados, testes), ordenação, duplicar e excluir formulários.
 
 ## Como rodar
 
-```bash
-npm install
-npm run dev
-```
-
-Abra **http://localhost:4200**. O `npm run dev` sobe dois processos juntos:
-
-| Processo | Porta | O que é |
-|---|---|---|
-| `api` | 3000 | Express em `server/server.mjs` |
-| `web` | 4200 | `ng serve` (repassa `/api` para a porta 3000 via `proxy.conf.json`) |
-
-Os dados ficam em `server/data/db.json` (criado sozinho, fora do Git).
-
-## Estrutura
-
-```
-server/
-  server.mjs        rotas da API + serve o Angular compilado em produção
-  validacao.mjs     limpa o formulário e valida as respostas
-  db.mjs            leitura/gravação do db.json
-src/app/
-  models/           tipos (Formulario, Pergunta, Resposta...) e modelos prontos
-  services/         FormulariosService (HttpClient -> /api)
-  pages/painel      lista de formulários
-  pages/editor      editor com Reactive Forms (FormArray de seções/perguntas/opções)
-  pages/responder   formulário dinâmico gerado a partir das perguntas
-  pages/respostas   resumo, individual, CSV
-  shared/           cabeçalho, avisos, CSV
-```
-
-## API
-
-| Método | Rota | Faz |
-|---|---|---|
-| GET | `/api/forms` | lista (com total de respostas) |
-| POST | `/api/forms` | cria |
-| GET / PUT / DELETE | `/api/forms/:id` | busca / salva / exclui |
-| GET / POST / DELETE | `/api/forms/:id/respostas` | lista / envia / exclui todas |
-| DELETE | `/api/forms/:id/respostas/:respostaId` | exclui uma |
-
-## Publicar (produção)
+Pré-requisito: **Node.js 20 ou mais novo**.
 
 ```bash
-npm run build       # gera dist/aula1/browser
-npm run start:prod  # Express serve o site e a API na mesma porta (PORT, padrão 3000)
+npm install     # instala raiz, backend e frontend (um só comando)
+npm run dev     # sobe backend (3000) e frontend (4200) juntos
 ```
 
-Funciona em qualquer hospedagem Node (ex: Render): build command `npm install && npm run build`,
-start command `npm run start:prod`.
+Abra **http://localhost:4200**, crie uma conta (e-mail fictício!) e comece um formulário.
 
-> Atenção: não há login. Quem tiver o link de edição consegue editar. Em hospedagens gratuitas o
-> `db.json` pode ser apagado quando o servidor reinicia.
-
-## Testes
+Também dá para rodar cada parte separada, em dois terminais:
 
 ```bash
-npm test
+cd backend  && npm run dev     # API em http://localhost:3000
+cd frontend && npm start       # site em http://localhost:4200
 ```
+
+### Scripts da raiz
+
+| Comando | O que faz |
+|---|---|
+| `npm install` | Instala as dependências das três partes |
+| `npm run dev` | Backend + frontend em modo desenvolvimento |
+| `npm test` | Testes do backend (`node:test`) e do frontend (Vitest) |
+| `npm run build` | Compila o Angular em `frontend/dist/` |
+| `npm start` | Sobe o backend em modo produção (já servindo o Angular compilado) |
+
+## Publicar para os colegas testarem
+
+Qualquer hospedagem de Node serve (ex: Render, Railway). Configuração:
+
+| Campo | Valor |
+|---|---|
+| Build command | `npm install && npm run build` |
+| Start command | `npm start` |
+| Variável de ambiente | `NODE_ENV=production` |
+
+Em produção o cookie de sessão só trafega em HTTPS. Em hospedagens gratuitas, o arquivo
+`backend/data/db.json` pode ser apagado quando o servidor reinicia (contas e respostas somem).
+
+## Segurança (resumo)
+
+- Senhas guardadas com **scrypt + sal** (nunca em texto).
+- Sessão em **cookie httpOnly** (o JavaScript da página não lê), `SameSite=Lax` e checagem de origem contra CSRF.
+- **Limite de tentativas** de login (10 a cada 15 min por IP + e-mail).
+- O link público **não entrega o gabarito** do teste.
+- Um usuário recebe 404 ao tentar abrir o formulário de outro.
+- CSV protegido contra fórmulas maliciosas no Excel.
+
+Detalhes em [backend/README.md](backend/README.md#segurança).

@@ -1,0 +1,96 @@
+<div class="fundo-tema" [style.--cor]="dados()?.cor">
+  <app-cabecalho-form
+    [formId]="id()"
+    [titulo]="dados()?.titulo ?? ''"
+    aba="configuracoes"
+    [status]="salvo()"
+    [exigeLogin]="dados()?.config?.exigirLogin ?? false"
+  />
+
+  @switch (status()) {
+    @case ('carregando') {
+      <p class="carregando">Carregando...</p>
+    }
+    @case ('nao-encontrado') {
+      <p class="vazio">Formulário não encontrado (ou não é seu).</p>
+    }
+    @default {
+      <main class="pagina" [formGroup]="form">
+        <section class="cartao">
+          <h2>Respostas</h2>
+          <p class="suave">Quem pode responder e até quando.</p>
+
+          <label class="opcao-config">
+            <span><strong>Aceitando respostas</strong><small>Desligue para fechar o formulário.</small></span>
+            <span class="chave"><input type="checkbox" formControlName="aceitandoRespostas" /></span>
+          </label>
+
+          <label class="opcao-config">
+            <span><strong>Exigir login</strong><small>Quem responde precisa entrar com uma conta. O nome e e-mail ficam registrados na resposta.</small></span>
+            <span class="chave"><input type="checkbox" formControlName="exigirLogin" /></span>
+          </label>
+
+          <label class="opcao-config" [class.desligada]="!form.controls.exigirLogin.value">
+            <span><strong>Limitar a 1 resposta por pessoa</strong><small>Precisa de "Exigir login" ligado.</small></span>
+            <span class="chave"><input type="checkbox" formControlName="umaRespostaPorPessoa" /></span>
+          </label>
+
+          <div class="opcao-config">
+            <span><strong>Data limite</strong><small>Depois disso o formulário fecha sozinho.</small></span>
+            <span class="linha">
+              <input class="campo-caixa" type="datetime-local" formControlName="dataLimite" aria-label="Data limite" />
+              @if (form.controls.dataLimite.value) {
+                <button type="button" class="btn-icone" (click)="limparPrazo()" title="Remover data limite">✕</button>
+              }
+            </span>
+          </div>
+
+          <div class="opcao-config">
+            <span><strong>Limite de respostas</strong><small>Fecha ao chegar nesse número. Vazio = sem limite.</small></span>
+            <input class="campo-caixa numero" type="number" min="1" formControlName="limiteRespostas" aria-label="Limite de respostas" />
+          </div>
+        </section>
+
+        <section class="cartao">
+          <h2>Apresentação</h2>
+
+          <label class="opcao-config">
+            <span><strong>Mostrar barra de progresso</strong><small>Em formulários com várias seções.</small></span>
+            <span class="chave"><input type="checkbox" formControlName="barraProgresso" /></span>
+          </label>
+
+          <label class="opcao-config">
+            <span><strong>Embaralhar a ordem das perguntas</strong><small>Cada pessoa vê as perguntas de cada seção numa ordem diferente.</small></span>
+            <span class="chave"><input type="checkbox" formControlName="embaralharPerguntas" /></span>
+          </label>
+
+          <label class="opcao-config">
+            <span><strong>Mostrar link para enviar outra resposta</strong></span>
+            <span class="chave"><input type="checkbox" formControlName="permitirOutraResposta" /></span>
+          </label>
+
+          <label class="campo-rotulado">
+            <span>Mensagem de confirmação</span>
+            <textarea class="campo-caixa" rows="2" formControlName="mensagemConfirmacao" placeholder="Sua resposta foi registrada."></textarea>
+          </label>
+        </section>
+
+        <section class="cartao">
+          <h2>Testes</h2>
+
+          <label class="opcao-config">
+            <span><strong>Transformar em um teste</strong><small>Define pontos e gabarito por pergunta e calcula a nota automaticamente.</small></span>
+            <span class="chave"><input type="checkbox" formControlName="modoTeste" /></span>
+          </label>
+
+          @if (form.controls.modoTeste.value) {
+            <label class="opcao-config">
+              <span><strong>Mostrar a nota logo após o envio</strong><small>Inclui quais respostas estavam certas e as explicações.</small></span>
+              <span class="chave"><input type="checkbox" formControlName="mostrarNota" /></span>
+            </label>
+          }
+        </section>
+      </main>
+    }
+  }
+</div>

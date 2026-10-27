@@ -1,0 +1,71 @@
+<main class="tela-auth">
+  <form class="cartao caixa-auth" [formGroup]="form" (ngSubmit)="enviar()" novalidate>
+    <div class="marca-auth">
+      <span class="logo" aria-hidden="true">≡</span>
+      <span>Formulários</span>
+    </div>
+    <h1>{{ cadastro() ? 'Criar sua conta' : 'Fazer login' }}</h1>
+    <p class="suave">{{ cadastro() ? 'Para criar e gerenciar seus formulários' : 'Use sua conta para continuar' }}</p>
+
+    <p class="obs-email" role="note">
+      ⚠️ <strong>Projeto de aula:</strong> use um <strong>e-mail fictício</strong> (ex: <code>seunome&#64;teste.com</code>).
+      Não coloque seu e-mail real — o sistema não envia e-mails e não confere se o endereço existe.
+    </p>
+
+    @if (cadastro()) {
+      <label class="campo-rotulado">
+        <span>Nome</span>
+        <input class="campo-caixa" formControlName="nome" autocomplete="name" />
+        @if (erro('nome')) {
+          <small class="msg-erro">{{ erro('nome') }}</small>
+        }
+      </label>
+    }
+
+    <label class="campo-rotulado">
+      <span>E-mail</span>
+      <input class="campo-caixa" type="email" formControlName="email" autocomplete="off" placeholder="seunome@teste.com" />
+      @if (erro('email')) {
+        <small class="msg-erro">{{ erro('email') }}</small>
+      } @else if (cadastro()) {
+        <small class="suave">Pode ser inventado. Só precisa ter o formato nome&#64;algo.com</small>
+      }
+    </label>
+
+    <label class="campo-rotulado">
+      <span>Senha</span>
+      <div class="senha">
+        <input
+          class="campo-caixa"
+          [type]="mostrarSenha() ? 'text' : 'password'"
+          formControlName="senha"
+          [attr.autocomplete]="cadastro() ? 'new-password' : 'current-password'"
+        />
+        <button type="button" class="btn texto" (click)="mostrarSenha.set(!mostrarSenha())">
+          {{ mostrarSenha() ? 'Ocultar' : 'Mostrar' }}
+        </button>
+      </div>
+      @if (erro('senha')) {
+        <small class="msg-erro">{{ erro('senha') }}</small>
+      } @else if (cadastro()) {
+        <small class="suave">Pelo menos 8 caracteres</small>
+      }
+    </label>
+
+    @if (erroGeral()) {
+      <p class="msg-erro" role="alert">{{ erroGeral() }}</p>
+    }
+
+    <div class="linha acoes-auth">
+      @if (cadastro()) {
+        <a class="btn texto" routerLink="/entrar" [queryParams]="{ voltar: voltar() }">Já tenho conta</a>
+      } @else {
+        <a class="btn texto" routerLink="/criar-conta" [queryParams]="{ voltar: voltar() }">Criar conta</a>
+      }
+      <span class="espaco"></span>
+      <button type="submit" class="btn" [disabled]="enviando()">
+        {{ enviando() ? 'Aguarde...' : cadastro() ? 'Criar conta' : 'Entrar' }}
+      </button>
+    </div>
+  </form>
+</main>

@@ -1,0 +1,102 @@
+<div class="fundo-tema" [style.--cor]="form.controls.cor.value">
+  <app-cabecalho-form
+    [formId]="id()"
+    [titulo]="form.controls.titulo.value"
+    aba="perguntas"
+    [status]="textoStatus[status()]"
+    [totalRespostas]="totalRespostas()"
+    [exigeLogin]="config()?.exigirLogin ?? false"
+  />
+
+  @switch (status()) {
+    @case ('carregando') {
+      <p class="carregando">Carregando...</p>
+    }
+    @case ('nao-encontrado') {
+      <p class="vazio">Formulário não encontrado (ou não é seu).</p>
+    }
+    @default {
+      <main class="pagina" cdkDropListGroup>
+        @if (config()?.modoTeste) {
+          <p class="aviso-teste">📝 Modo teste ligado: clique em <strong>Gabarito</strong> em cada pergunta para marcar as respostas certas.</p>
+        }
+
+        <!-- Cabeçalho do formulário -->
+        <section class="cartao cabecalho editavel" [formGroup]="form">
+          <label class="sr-only" for="titulo-form">Título do formulário</label>
+          <input id="titulo-form" class="campo grande" formControlName="titulo" placeholder="Título do formulário" />
+          <label class="sr-only" for="descricao-form">Descrição do formulário</label>
+          <textarea id="descricao-form" class="campo" formControlName="descricao" placeholder="Descrição do formulário" rows="1"></textarea>
+
+          <div class="linha cores" role="group" aria-label="Cor do tema">
+            <span class="suave">Cor do tema</span>
+            @for (cor of cores; track cor) {
+              <button
+                type="button"
+                class="cor"
+                [style.background]="cor"
+                [class.escolhida]="form.controls.cor.value === cor"
+                [attr.aria-pressed]="form.controls.cor.value === cor"
+                [attr.aria-label]="'Cor ' + cor"
+                (click)="escolherCor(cor)"
+              ></button>
+            }
+          </div>
+        </section>
+
+        @for (secao of secoes.controls; track secao; let s = $index) {
+          <!-- Seções extras (a primeira usa o cabeçalho do formulário) -->
+          @if (s > 0) {
+            <span class="rotulo-secao">Seção {{ s + 1 }} de {{ secoes.length }}</span>
+            <section class="cartao editavel" [formGroup]="secao">
+              <div class="linha">
+                <input [id]="'s-' + secao.controls.id.value" class="campo medio flex" formControlName="titulo"
+                  placeholder="Título da seção" aria-label="Título da seção" />
+                <button type="button" class="btn-icone" (click)="removerSecao(s)" title="Excluir seção (as perguntas vão para a seção anterior)">🗑</button>
+              </div>
+              <textarea class="campo" formControlName="descricao" placeholder="Descrição (opcional)" aria-label="Descrição da seção" rows="1"></textarea>
+            </section>
+          }
+
+          <div class="lista-perguntas" cdkDropList [cdkDropListData]="s" (cdkDropListDropped)="soltar($event)">
+            @for (p of perguntasDe(s).controls; track p; let i = $index; let primeira = $first; let ultima = $last) {
+              <app-pergunta-editor
+                cdkDrag
+                [grupo]="p"
+                [destinos]="destinos()[s] ?? []"
+                [modoTeste]="config()?.modoTeste ?? false"
+                [primeira]="primeira"
+                [ultima]="ultima"
+                (duplicar)="duplicar(s, i)"
+                (remover)="remover(s, i)"
+                (mover)="mover(s, i, $event)"
+              >
+                <div class="vaga" *cdkDragPlaceholder></div>
+              </app-pergunta-editor>
+            } @empty {
+              <p class="vazio-secao suave">Nenhuma pergunta nesta seção. Arraste uma para cá ou clique em "+ Pergunta".</p>
+            }
+          </div>
+
+          <div class="adicionar linha" [formGroup]="secao">
+            <button type="button" class="btn contorno" (click)="adicionarPergunta(s)">+ Pergunta</button>
+            @if (s === secoes.length - 1) {
+              <button type="button" class="btn texto" (click)="adicionarSecao()">+ Seção</button>
+            }
+            @if (secoes.length > 1) {
+              <span class="espaco"></span>
+              <label class="depois suave">
+                Após a seção {{ s + 1 }}:
+                <select class="campo-caixa" formControlName="depois">
+                  @for (d of depoisDaSecao(s); track d.valor) {
+                    <option [value]="d.valor">{{ d.rotulo }}</option>
+                  }
+                </select>
+              </label>
+            }
+          </div>
+        }
+      </main>
+    }
+  }
+</div>

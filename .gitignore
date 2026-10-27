@@ -1,47 +1,36 @@
-# See https://docs.github.com/get-started/getting-started-with-git/ignoring-files for more about ignoring files.
-
-# Compiled output
-/dist
-/tmp
-/out-tsc
-/bazel-out
-
-# Node
-/node_modules
+# Dependências (raiz, backend e frontend)
+node_modules/
 npm-debug.log
 yarn-error.log
 
-# IDEs and editors
-.idea/
-.project
-.classpath
-.c9/
-*.launch
-.settings/
-*.sublime-workspace
+# Build do Angular
+frontend/dist/
+frontend/.angular/
+frontend/out-tsc/
+frontend/coverage/
+frontend/__screenshots__/
 
-# Visual Studio Code
+# Banco de dados local do backend (usuários, sessões, formulários, respostas)
+backend/data/
+
+# Variáveis de ambiente
+.env
+.env.*
+!.env.example
+
+# Editores
+.idea/
+*.sublime-workspace
 .vscode/*
 !.vscode/settings.json
 !.vscode/tasks.json
 !.vscode/launch.json
 !.vscode/extensions.json
-!.vscode/mcp.json
-.history/*
+.history/
 
-# Miscellaneous
-/.angular/cache
-.sass-cache/
-/connect.lock
-/coverage
-/libpeerconnection.log
-testem.log
-/typings
-__screenshots__/
-
-# System files
+# Sistema
 .DS_Store
 Thumbs.db
 
-# Banco de dados local (respostas)
-/server/data/
+# Ferramentas de teste no navegador
+.playwright-mcp/

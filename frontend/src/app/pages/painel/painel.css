@@ -1,0 +1,159 @@
+.novos {
+  background: #fff;
+  border-bottom: 1px solid var(--borda);
+}
+
+.novos h2 {
+  font-weight: 400;
+  font-size: 16px;
+  color: var(--texto);
+}
+
+.modelos {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.modelo {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 160px;
+  padding: 0;
+  border: 0;
+  background: none;
+  text-align: left;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.miniatura {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  height: 120px;
+  padding: 16px;
+  border: 1px solid var(--borda);
+  border-radius: 4px;
+  background: color-mix(in srgb, var(--cor) 14%, #fff);
+}
+
+.miniatura.branco {
+  align-items: center;
+  justify-content: center;
+  background: #fff;
+  font-size: 48px;
+  color: var(--cor);
+}
+
+.miniatura i {
+  height: 14px;
+  border-radius: 3px;
+  background: #fff;
+  border-top: 3px solid var(--cor);
+}
+
+.modelo:hover .miniatura {
+  border-color: var(--cor);
+}
+
+h2 {
+  font-size: 18px;
+  font-weight: 500;
+  margin: 20px 0 8px;
+}
+
+.lista {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+  padding-right: 8px;
+  border: 1px solid var(--borda);
+  border-left: 6px solid var(--cor);
+  border-radius: var(--raio);
+  background: #fff;
+}
+
+.faixa {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  padding: 14px 16px;
+  text-decoration: none;
+}
+
+.faixa strong {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.acoes {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.etiquetas {
+  display: flex;
+  gap: 6px;
+  margin-top: 4px;
+}
+
+.etiquetas:empty {
+  display: none;
+}
+
+.busca {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  max-width: 560px;
+  margin: 0 auto;
+  padding: 0 14px;
+  border-radius: var(--raio);
+  background: #f1f3f4;
+}
+
+.busca input {
+  flex: 1;
+  min-width: 0;
+  height: 44px;
+  border: 0;
+  background: transparent;
+  outline: none;
+}
+
+.busca:focus-within {
+  background: #fff;
+  box-shadow: 0 1px 4px rgb(0 0 0 / 25%);
+}
+
+.cabeca-lista {
+  margin-top: 8px;
+}
+
+@media (max-width: 600px) {
+  .topo .marca span:last-child {
+    display: none;
+  }
+
+  .cabeca-lista h2 {
+    flex: 1 1 100%;
+  }
+
+  .acoes .btn-icone {
+    width: 34px;
+    height: 34px;
+  }
+}
