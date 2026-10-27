@@ -1,0 +1,17 @@
+# Publicação no Render (https://render.com): New → Blueprint → escolher este repositório.
+# Um único serviço: o backend Node entrega a API e o Angular compilado no mesmo endereço.
+services:
+  - type: web
+    name: genform
+    runtime: node
+    plan: free
+    # --include=dev: o build do Angular precisa das devDependencies (CLI, compilador),
+    # que o npm pularia por causa do NODE_ENV=production.
+    buildCommand: npm install --include=dev --prefix backend && npm install --include=dev --prefix frontend && npm run build --prefix frontend
+    startCommand: npm start --prefix backend
+    healthCheckPath: /api/auth/eu
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: NODE_VERSION
+        value: "22"

@@ -21,12 +21,4 @@ export class AvisoService {
       this.mostrar('Não deu para copiar automaticamente. Selecione o texto e copie com Ctrl+C.');
     }
   }
-
-  copiarLink(formId: string) {
-    return this.copiar(linkResposta(formId), 'Link copiado');
-  }
-}
-
-export function linkResposta(formId: string) {
-  return `${location.origin}/f/${formId}`;
 }

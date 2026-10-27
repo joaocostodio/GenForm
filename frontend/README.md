@@ -9,7 +9,8 @@ O frontend **não tem banco de dados**: tudo vem da API do [backend](../backend/
 
 ```bash
 npm install
-npm start       # ng serve em http://localhost:4200 (precisa do backend rodando na 3000)
+npm start       # ng serve --host 0.0.0.0: http://localhost:4200 e também pelo IP do PC na rede
+                # (precisa do backend rodando na 3000)
 npm test        # testes com Vitest
 npm run build   # gera dist/frontend/browser
 ```
@@ -33,6 +34,7 @@ src/app/
 ├── shared/
 │   ├── cabecalho-form.ts  Topo + abas Perguntas | Respostas | Configurações
 │   ├── compartilhar.ts    Janela "Enviar": link, QR code, iframe
+│   ├── endereco.service.ts Endereço do link: troca "localhost" pelo IP da rede quando roda no PC
 │   ├── menu-usuario.ts    Avatar com menu (minha conta, sair)
 │   ├── fluxo.ts           Lógica condicional (para qual seção ir)
 │   ├── validadores.ts     Validadores da tela de responder

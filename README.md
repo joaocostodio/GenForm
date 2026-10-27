@@ -99,18 +99,42 @@ cd frontend && npm start       # site em http://localhost:4200
 | `npm run build` | Compila o Angular em `frontend/dist/` |
 | `npm start` | Sobe o backend em modo produção (já servindo o Angular compilado) |
 
-## Publicar para os colegas testarem
+## Colegas testando
 
-Qualquer hospedagem de Node serve (ex: Render, Railway). Configuração:
+> Deixar o repositório público no GitHub **compartilha só o código**. Para o site abrir em outro
+> aparelho, alguém precisa **rodar** o projeto: no seu PC (opção 1) ou numa hospedagem (opção 2).
+> O GitHub Pages não serve, porque só hospeda páginas estáticas e o GenForm precisa do backend Node.
+
+### Opção 1 — na rede da sala (mesmo Wi-Fi)
+
+1. Rode `npm run dev` no seu PC e deixe o terminal aberto.
+2. No GenForm, clique em **Enviar**. Como você está em `localhost`, o link e o QR code saem com o
+   IP do seu PC na rede (ex: `http://10.5.131.18:4200/f/...`). Dá para escolher outro endereço na janela.
+3. Os colegas precisam estar **no mesmo Wi-Fi**. Se o seu PC desligar, o site sai do ar.
+
+Se não abrir: confira se o Windows liberou o Node no firewall e se a rede não bloqueia a conexão
+entre aparelhos (algumas redes de escola fazem isso). Nesse caso, use a opção 2.
+
+### Opção 2 — na internet (Render, grátis)
+
+O arquivo [`render.yaml`](render.yaml) já deixa tudo configurado:
+
+1. Entre em <https://render.com> com sua conta do GitHub.
+2. **New → Blueprint** → escolha o repositório **GenForm** → **Apply**.
+3. Em alguns minutos o site fica em um endereço como `https://genform-xxxx.onrender.com`.
+   O link e o QR code do GenForm passam a usar esse endereço sozinhos.
+
+Configuração equivalente, se preferir criar o serviço à mão:
 
 | Campo | Valor |
 |---|---|
-| Build command | `npm install && npm run build` |
-| Start command | `npm start` |
-| Variável de ambiente | `NODE_ENV=production` |
+| Build command | `npm install --include=dev --prefix backend && npm install --include=dev --prefix frontend && npm run build --prefix frontend` |
+| Start command | `npm start --prefix backend` |
+| Variáveis de ambiente | `NODE_ENV=production`, `NODE_VERSION=22` |
 
-Em produção o cookie de sessão só trafega em HTTPS. Em hospedagens gratuitas, o arquivo
-`backend/data/db.json` pode ser apagado quando o servidor reinicia (contas e respostas somem).
+⚠️ No plano grátis, o servidor "dorme" após 15 minutos sem uso (o primeiro acesso depois disso
+demora ~1 minuto) e o arquivo `backend/data/db.json` **é apagado** quando ele reinicia: contas,
+formulários e respostas somem. Serve para a turma testar numa aula, não para guardar dados.
 
 ## Segurança (resumo)
 

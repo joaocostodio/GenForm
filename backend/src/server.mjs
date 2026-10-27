@@ -3,6 +3,7 @@
 //   /api/auth/...     conta (cadastro, login, logout, perfil)    -> rotas/auth.mjs
 //   /api/forms/...    formulários do usuário logado             -> rotas/forms.mjs
 //   /api/publico/...  ver e responder um formulário pelo link   -> rotas/publico.mjs
+//   /api/rede         IPs da rede local (link/QR em dev)        -> rotas/rede.mjs
 //
 // Em produção também entrega o Angular compilado (frontend/dist), assim
 // site e API ficam no mesmo endereço e o cookie de sessão funciona sem CORS.
@@ -13,6 +14,7 @@ import { fileURLToPath } from 'node:url';
 import { rotasAuth } from './rotas/auth.mjs';
 import { rotasForms } from './rotas/forms.mjs';
 import { rotasPublico } from './rotas/publico.mjs';
+import { rotasRede } from './rotas/rede.mjs';
 import { carregarUsuario, exigirLogin, limparVencidos, mesmaOrigem } from './seguranca.mjs';
 
 const app = express();
@@ -35,6 +37,7 @@ app.use('/api', mesmaOrigem, carregarUsuario);
 app.use('/api/auth', rotasAuth);
 app.use('/api/forms', exigirLogin, rotasForms);
 app.use('/api/publico', rotasPublico);
+app.use('/api/rede', exigirLogin, rotasRede);
 app.use('/api', (_req, res) => res.status(404).json({ erro: 'Rota não encontrada' }));
 
 // ---------- Frontend compilado (npm run build) ----------

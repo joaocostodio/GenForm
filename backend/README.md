@@ -21,7 +21,8 @@ backend/
 │   ├── rotas/
 │   │   ├── auth.mjs      /api/auth     cadastro, login, logout, perfil
 │   │   ├── forms.mjs     /api/forms    CRUD do dono, duplicar, QR code, respostas
-│   │   └── publico.mjs   /api/publico  abrir e responder pelo link
+│   │   ├── publico.mjs   /api/publico  abrir e responder pelo link
+│   │   └── rede.mjs      /api/rede     IPs da rede local, para o link/QR funcionar em outro aparelho (só dev)
 │   ├── validacao.mjs     Regras: normalizar formulário, validar resposta,
 │   │                     lógica condicional (caminho) e nota do teste
 │   ├── seguranca.mjs     Senha (scrypt), sessão (cookie), middlewares, limite de tentativas

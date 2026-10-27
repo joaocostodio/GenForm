@@ -1,6 +1,7 @@
 import { Component, ElementRef, computed, inject, input, signal, viewChild } from '@angular/core';
 import { FormulariosService } from '../services/formularios.service';
-import { AvisoService, linkResposta } from './aviso.service';
+import { AvisoService } from './aviso.service';
+import { EnderecoService } from './endereco.service';
 
 type Aba = 'link' | 'qr' | 'incorporar';
 
@@ -21,6 +22,26 @@ type Aba = 'link' | 'qr' | 'incorporar';
           <button type="button" role="tab" [class.ativa]="aba() === 'qr'" [attr.aria-selected]="aba() === 'qr'" (click)="aba.set('qr')">▣ QR code</button>
           <button type="button" role="tab" [class.ativa]="aba() === 'incorporar'" [attr.aria-selected]="aba() === 'incorporar'" (click)="aba.set('incorporar')">&lt;/&gt; Incorporar</button>
         </nav>
+
+        @if (endereco.emLocalhost) {
+          <div class="aviso-rede">
+            <p>
+              <strong>O GenForm está rodando no seu computador.</strong> Para abrir em outro aparelho, o link usa o
+              endereço do seu PC na rede, e o outro aparelho precisa estar <strong>no mesmo Wi-Fi</strong>.
+            </p>
+            @if (endereco.opcoes().length > 1) {
+              <label class="linha">
+                <span>Endereço:</span>
+                <select class="campo-caixa flex" [value]="endereco.base()" (change)="endereco.escolher($any($event.target).value)">
+                  @for (o of endereco.opcoes(); track o.base) {
+                    <option [value]="o.base">{{ o.rotulo }}</option>
+                  }
+                </select>
+              </label>
+              <p class="suave">Se não abrir, tente outro endereço da lista (o do Wi-Fi costuma ser o certo).</p>
+            }
+          </div>
+        }
 
         @switch (aba()) {
           @case ('link') {
@@ -93,24 +114,40 @@ type Aba = 'link' | 'qr' | 'incorporar';
     .fim {
       justify-content: flex-end;
     }
+    .aviso-rede {
+      margin-bottom: 12px;
+      padding: 10px 12px;
+      border-radius: var(--raio);
+      background: #fff8e1;
+      border: 1px solid #f9e3a3;
+      font-size: 13px;
+    }
+    .aviso-rede p {
+      margin: 0 0 8px;
+    }
+    .aviso-rede p:last-child {
+      margin: 6px 0 0;
+    }
   `,
 })
 export class Compartilhar {
   private readonly api = inject(FormulariosService);
   private readonly aviso = inject(AvisoService);
+  protected readonly endereco = inject(EnderecoService);
   private readonly dialogo = viewChild.required<ElementRef<HTMLDialogElement>>('dialogo');
 
   readonly formId = input.required<string>();
   readonly exigeLogin = input(false);
 
   protected readonly aba = signal<Aba>('link');
-  protected readonly link = computed(() => linkResposta(this.formId()));
+  protected readonly link = computed(() => this.endereco.link(this.formId()));
   protected readonly urlQr = computed(() => this.api.urlQrCode(this.formId(), this.link()));
   protected readonly codigoIframe = computed(
     () => `<iframe src="${this.link()}?incorporado=1" width="640" height="800" style="border:0" title="Formulário">Carregando…</iframe>`,
   );
 
   abrir() {
+    this.endereco.carregar();
     this.aba.set('link');
     this.dialogo().nativeElement.showModal();
   }
