@@ -1,6 +1,6 @@
-# Backend — API em Node.js + Express
+# GenForm · Backend (Node.js + Express)
 
-API REST do clone do Google Forms. Cuida de **contas, sessões, formulários, respostas e regras**.
+API REST do GenForm, o clone do Google Forms. Cuida de **contas, sessões, formulários, respostas e regras**.
 É a fonte da verdade: tudo o que chega do navegador é limpo e validado aqui.
 
 ## Rodar

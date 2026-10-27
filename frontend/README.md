@@ -1,6 +1,6 @@
-# Frontend — Angular
+# GenForm · Frontend (Angular)
 
-Interface do clone do Google Forms. Criado com o **Angular CLI** (`ng new`), Angular 22,
+Interface do GenForm, o clone do Google Forms. Criado com o **Angular CLI** (`ng new`), Angular 22,
 componentes standalone, **signals**, **Reactive Forms** e o novo controle de fluxo (`@if`, `@for`, `@switch`).
 
 O frontend **não tem banco de dados**: tudo vem da API do [backend](../backend/README.md) em `/api/...`.

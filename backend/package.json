@@ -1,7 +1,7 @@
 {
   "name": "backend",
   "version": "1.0.0",
-  "description": "API em Node.js + Express do clone do Google Forms",
+  "description": "API em Node.js + Express do GenForm (clone do Google Forms)",
   "type": "module",
   "main": "src/server.mjs",
   "scripts": {

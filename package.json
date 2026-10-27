@@ -1,7 +1,7 @@
 {
-  "name": "projeto-aula-angular",
+  "name": "genform",
   "version": "1.0.0",
-  "description": "Clone do Google Forms: backend Node/Express + frontend Angular",
+  "description": "GenForm: clone do Google Forms com backend Node/Express e frontend Angular",
   "private": true,
   "scripts": {
     "postinstall": "npm install --prefix backend && npm install --prefix frontend",

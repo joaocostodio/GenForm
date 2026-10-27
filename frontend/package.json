@@ -1,7 +1,7 @@
 {
   "name": "frontend",
   "version": "1.0.0",
-  "description": "Frontend em Angular do clone do Google Forms",
+  "description": "Frontend em Angular do GenForm (clone do Google Forms)",
   "scripts": {
     "ng": "ng",
     "start": "ng serve",

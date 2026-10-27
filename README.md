@@ -1,6 +1,14 @@
-# Projeto Aula Angular — clone do Google Forms
+# GenForm
 
-Aplicação para **criar formulários, compartilhar um link e ver as respostas**, inspirada no Google Forms.
+**GenForm** é um clone do Google Forms feito em aula: **crie formulários, compartilhe um link e veja as respostas**.
+
+```bash
+git clone https://github.com/joaocostodio/GenForm.git
+cd GenForm
+npm install
+npm run dev     # abra http://localhost:4200
+```
+
 O repositório é dividido em duas partes independentes:
 
 | Pasta | O que é | Tecnologia | Documentação |
