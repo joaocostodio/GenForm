@@ -1,15 +1,49 @@
-/* Estilos globais do nosso Forms. Cada tela define --cor com a cor do formulário. */
+/*
+ * Estilos globais do GenForm, com a identidade da Hidra:
+ * fundo escuro, verde como cor principal e detalhes em prata.
+ * Cada tela define --cor com a cor do formulário (o padrão é o verde da Hidra).
+ */
 
 :root {
-  --cor: #673ab7;
-  --texto: #202124;
-  --texto-suave: #5f6368;
-  --borda: #dadce0;
-  --fundo: #f0ebf8;
-  --erro: #d93025;
-  --foco: #4285f4;
-  --raio: 8px;
-  color-scheme: light;
+  /* Cor principal */
+  --verde: #3ddc97;
+  --verde-escuro: #14714a;
+  --cor: var(--verde);
+
+  /* Prata (bordas de destaque, logo, detalhes) */
+  --prata: #c3cad2;
+  --prata-clara: #eef1f4;
+  --prata-escura: #8a939d;
+  --prata-gradiente: linear-gradient(90deg, #8a939d, #eef1f4 45%, #a9b1ba 70%, #e2e6ea);
+
+  /* Superfícies (as mesmas da Hidra) */
+  --fundo-app: #0c0d11;
+  --superficie: #16181e;
+  --superficie-2: #1c1f27;
+  --superficie-3: #252833;
+  --borda: #2c303b;
+  --borda-forte: #3a3e4b;
+
+  /* Texto */
+  --texto: #e8ebef;
+  --texto-suave: #9aa3ad;
+  --tinta: #06140d; /* texto em cima do verde */
+
+  /* Estados */
+  --erro: #ff7a7a;
+  --certo: var(--verde);
+  --foco: var(--prata);
+  --aviso-fundo: rgb(240 184 102 / 10%);
+  --aviso-borda: rgb(240 184 102 / 35%);
+
+  --raio: 10px;
+  --sombra: 0 12px 40px rgb(0 0 0 / 55%), 0 2px 8px rgb(0 0 0 / 40%);
+  --fonte: 'Segoe UI Variable Text', 'Segoe UI', system-ui, sans-serif;
+  --mono: 'Cascadia Code', 'Cascadia Mono', Consolas, monospace;
+
+  /* Fundo da página: o padrão é o mesmo; .fundo-tema adiciona o brilho da cor do form */
+  --fundo: var(--fundo-app);
+  color-scheme: dark;
 }
 
 * {
@@ -22,15 +56,21 @@ body {
 }
 
 body {
-  font-family: 'Segoe UI', Roboto, Arial, system-ui, sans-serif;
+  font-family: var(--fonte);
   color: var(--texto);
-  background: #f1f3f4;
+  background: var(--fundo-app);
   font-size: 15px;
-  line-height: 1.45;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
 }
 
 a {
   color: inherit;
+}
+
+code {
+  font-family: var(--mono);
+  font-size: 0.9em;
 }
 
 button,
@@ -41,16 +81,21 @@ textarea {
   color: inherit;
 }
 
+::selection {
+  background: color-mix(in srgb, var(--verde) 35%, transparent);
+}
+
 /* ---------- Estrutura ---------- */
 
 .fundo-tema {
-  --fundo: color-mix(in srgb, var(--cor) 12%, #fff);
-  background: var(--fundo);
+  background:
+    radial-gradient(1100px 420px at 50% -120px, color-mix(in srgb, var(--cor) 16%, transparent), transparent 70%),
+    var(--fundo-app);
   min-height: 100vh;
 }
 
 .pagina {
-  max-width: 770px;
+  max-width: 780px;
   margin: 0 auto;
   padding: 12px 16px 64px;
 }
@@ -63,9 +108,22 @@ textarea {
   align-items: center;
   gap: 12px;
   padding: 8px 16px;
-  background: #fff;
+  background: rgb(17 18 23 / 88%);
+  backdrop-filter: blur(10px);
   border-bottom: 1px solid var(--borda);
-  min-height: 64px;
+  min-height: 60px;
+}
+
+/* Fio prata embaixo da barra do topo */
+.topo::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -1px;
+  height: 1px;
+  background: var(--prata-gradiente);
+  opacity: 0.35;
 }
 
 .topo .marca {
@@ -73,34 +131,68 @@ textarea {
   align-items: center;
   gap: 10px;
   text-decoration: none;
-  font-size: 20px;
-  color: var(--texto-suave);
+  font-size: 18px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--texto);
   min-width: 0;
 }
 
 .topo .status {
-  font-size: 13px;
+  font-family: var(--mono);
+  font-size: 11.5px;
   color: var(--texto-suave);
   white-space: nowrap;
+}
+
+/* Nome da marca: "Gen" em prata, "Form" em verde */
+.nome-marca {
+  white-space: nowrap;
+}
+
+.nome-marca b {
+  font-weight: 600;
+  background: linear-gradient(180deg, var(--prata-clara), var(--prata-escura));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.nome-marca em {
+  font-style: normal;
+  color: var(--verde);
 }
 
 /* ---------- Cartões ---------- */
 
 .cartao {
   position: relative;
-  background: #fff;
+  background: var(--superficie);
   border: 1px solid var(--borda);
   border-radius: var(--raio);
   padding: 22px 24px;
   margin-top: 12px;
 }
 
+/* Cabeçalho do formulário: faixa da cor do form com um fio prata */
 .cartao.cabecalho {
-  border-top: 10px solid var(--cor);
+  border-top: 0;
+  padding-top: 28px;
+  overflow: hidden;
+}
+
+.cartao.cabecalho::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto;
+  height: 6px;
+  background: linear-gradient(90deg, var(--cor), color-mix(in srgb, var(--cor) 60%, var(--prata)));
+  box-shadow: 0 1px 0 rgb(238 241 244 / 35%);
 }
 
 .cartao.editavel:focus-within {
-  box-shadow: inset 6px 0 0 var(--foco);
+  border-color: var(--borda-forte);
+  box-shadow: inset 3px 0 0 var(--cor), 0 0 0 1px color-mix(in srgb, var(--cor) 25%, transparent);
 }
 
 .cartao.com-erro {
@@ -109,18 +201,23 @@ textarea {
 
 .rotulo-secao {
   display: inline-block;
-  margin-top: 24px;
-  padding: 6px 14px;
+  margin-top: 28px;
+  padding: 5px 14px;
   border-radius: var(--raio) var(--raio) 0 0;
   background: var(--cor);
-  color: #fff;
-  font-size: 14px;
+  color: var(--tinta);
+  color: lch(from var(--cor) calc((62 - l) * infinity) 0 0);
+  font-family: var(--mono);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
 }
 
 .rotulo-secao + .cartao {
   margin-top: 0;
   border-top-left-radius: 0;
-  border-top: 10px solid var(--cor);
+  border-top: 3px solid var(--cor);
 }
 
 /* ---------- Campos ---------- */
@@ -128,11 +225,20 @@ textarea {
 .campo {
   width: 100%;
   border: 0;
-  border-bottom: 1px solid var(--borda);
+  border-bottom: 1px solid var(--borda-forte);
   background: transparent;
   padding: 8px 0;
   outline: none;
   transition: border-color 0.15s;
+}
+
+.campo::placeholder,
+.campo-caixa::placeholder {
+  color: color-mix(in srgb, var(--texto-suave) 70%, transparent);
+}
+
+.campo:hover {
+  border-bottom-color: var(--prata-escura);
 }
 
 .campo:focus {
@@ -142,6 +248,8 @@ textarea {
 
 .campo.grande {
   font-size: 30px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
   line-height: 1.2;
 }
 
@@ -155,15 +263,20 @@ textarea.campo {
 }
 
 .campo-caixa {
-  border: 1px solid var(--borda);
-  border-radius: 4px;
+  border: 1px solid var(--borda-forte);
+  border-radius: 8px;
   padding: 8px 10px;
-  background: #fff;
+  background: var(--superficie-2);
+}
+
+.campo-caixa:hover {
+  border-color: var(--prata-escura);
 }
 
 .campo-caixa:focus {
-  outline: 2px solid var(--cor);
+  outline: 2px solid color-mix(in srgb, var(--cor) 70%, transparent);
   outline-offset: -1px;
+  border-color: transparent;
 }
 
 .com-erro .campo {
@@ -203,45 +316,63 @@ input[type='checkbox'] {
   min-height: 36px;
   padding: 0 18px;
   border: 1px solid transparent;
-  border-radius: 4px;
+  border-radius: 8px;
   background: var(--cor);
-  color: #fff;
+  /* texto escuro em cores claras e branco em cores escuras */
+  color: var(--tinta);
+  color: lch(from var(--cor) calc((62 - l) * infinity) 0 0);
   font-weight: 600;
   text-decoration: none;
   cursor: pointer;
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 25%);
+  transition: filter 0.15s, background 0.15s, border-color 0.15s;
 }
 
 .btn:hover {
-  filter: brightness(0.92);
+  filter: brightness(1.08);
 }
 
 .btn:disabled {
-  opacity: 0.55;
+  opacity: 0.5;
   cursor: default;
   filter: none;
 }
 
 .btn.contorno {
-  background: #fff;
-  color: var(--cor);
-  border-color: var(--borda);
+  background: transparent;
+  color: var(--prata-clara);
+  border-color: var(--prata-escura);
+  box-shadow: none;
+}
+
+.btn.contorno:hover {
+  border-color: var(--prata);
+  background: rgb(238 241 244 / 6%);
+  filter: none;
 }
 
 .btn.texto {
   background: transparent;
   color: var(--cor);
   padding: 0 10px;
+  box-shadow: none;
 }
 
 .btn.texto:hover {
-  background: color-mix(in srgb, var(--cor) 8%, transparent);
+  background: color-mix(in srgb, var(--cor) 12%, transparent);
   filter: none;
 }
 
 .btn.perigo {
-  background: #fff;
+  background: transparent;
   color: var(--erro);
-  border-color: var(--borda);
+  border-color: color-mix(in srgb, var(--erro) 45%, transparent);
+  box-shadow: none;
+}
+
+.btn.perigo:hover {
+  background: color-mix(in srgb, var(--erro) 10%, transparent);
+  filter: none;
 }
 
 .btn-icone {
@@ -259,7 +390,8 @@ input[type='checkbox'] {
 }
 
 .btn-icone:hover:not(:disabled) {
-  background: #f1f3f4;
+  background: var(--superficie-3);
+  color: var(--prata-clara);
 }
 
 .btn-icone:disabled {
@@ -281,39 +413,42 @@ input[type='checkbox'] {
 .chave input {
   appearance: none;
   position: relative;
-  width: 36px;
-  height: 14px;
-  border-radius: 7px;
-  background: #bdc1c6;
+  width: 38px;
+  height: 20px;
+  border-radius: 10px;
+  background: var(--superficie-3);
+  border: 1px solid var(--borda-forte);
   cursor: pointer;
   accent-color: auto;
+  transition: background 0.15s, border-color 0.15s;
 }
 
 .chave input::before {
   content: '';
   position: absolute;
-  top: -3px;
-  left: -2px;
-  width: 20px;
-  height: 20px;
+  top: 2px;
+  left: 2px;
+  width: 14px;
+  height: 14px;
   border-radius: 50%;
-  background: #fff;
-  box-shadow: 0 1px 3px rgb(0 0 0 / 40%);
-  transition: transform 0.15s;
+  background: linear-gradient(180deg, var(--prata-clara), var(--prata-escura));
+  box-shadow: 0 1px 3px rgb(0 0 0 / 50%);
+  transition: transform 0.15s, background 0.15s;
 }
 
 .chave input:checked {
-  background: color-mix(in srgb, var(--cor) 50%, #fff);
+  background: color-mix(in srgb, var(--cor) 35%, var(--superficie-2));
+  border-color: var(--cor);
 }
 
 .chave input:checked::before {
-  transform: translateX(20px);
+  transform: translateX(18px);
   background: var(--cor);
 }
 
 .chave input:focus-visible {
   outline: 2px solid var(--foco);
-  outline-offset: 4px;
+  outline-offset: 3px;
 }
 
 /* ---------- Abas ---------- */
@@ -322,17 +457,21 @@ input[type='checkbox'] {
   display: flex;
   justify-content: center;
   gap: 8px;
-  background: #fff;
+  background: var(--superficie);
   border-bottom: 1px solid var(--borda);
 }
 
 .abas a {
-  padding: 10px 14px;
-  border-bottom: 3px solid transparent;
+  padding: 11px 14px;
+  border-bottom: 2px solid transparent;
   color: var(--texto-suave);
   text-decoration: none;
   font-weight: 600;
   font-size: 14px;
+}
+
+.abas a:hover {
+  color: var(--prata-clara);
 }
 
 .abas a.ativa {
@@ -367,11 +506,13 @@ input[type='checkbox'] {
   bottom: 24px;
   z-index: 50;
   padding: 12px 18px;
-  border-radius: 4px;
-  background: #323232;
-  color: #fff;
+  border-radius: 8px;
+  background: var(--superficie-3);
+  border: 1px solid var(--borda-forte);
+  border-left: 3px solid var(--verde);
+  color: var(--texto);
   font-size: 14px;
-  box-shadow: 0 3px 8px rgb(0 0 0 / 30%);
+  box-shadow: var(--sombra);
 }
 
 .sr-only {
@@ -395,7 +536,8 @@ input[type='checkbox'] {
 .titulo-pagina {
   margin: 24px 0 4px;
   font-size: 24px;
-  font-weight: 400;
+  font-weight: 600;
+  letter-spacing: -0.01em;
 }
 
 .cartao h2 {
@@ -425,6 +567,15 @@ input[type='checkbox'] {
   font-weight: 400;
 }
 
+/* ---------- Logo ---------- */
+
+.logo {
+  flex: none;
+  display: block;
+  width: 34px;
+  height: 34px;
+}
+
 /* ---------- Login ---------- */
 
 .tela-auth {
@@ -432,7 +583,10 @@ input[type='checkbox'] {
   place-items: center;
   min-height: 100vh;
   padding: 16px;
-  background: var(--fundo);
+  background:
+    radial-gradient(900px 480px at 50% 0%, rgb(61 220 151 / 12%), transparent 70%),
+    radial-gradient(600px 400px at 50% 110%, rgb(195 202 210 / 6%), transparent 70%),
+    var(--fundo-app);
 }
 
 .caixa-auth {
@@ -440,42 +594,44 @@ input[type='checkbox'] {
   max-width: 420px;
   margin: 0;
   padding: 36px 32px 28px;
-  border-top: 8px solid var(--cor);
+  box-shadow: var(--sombra);
+  overflow: hidden;
+}
+
+.caixa-auth::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto;
+  height: 3px;
+  background: linear-gradient(90deg, var(--verde), var(--prata-clara) 60%, var(--prata-escura));
 }
 
 .caixa-auth h1 {
   margin: 18px 0 2px;
   font-size: 24px;
-  font-weight: 400;
+  font-weight: 600;
+  letter-spacing: -0.01em;
 }
 
 .marca-auth {
   display: flex;
   align-items: center;
-  gap: 10px;
-  color: var(--texto-suave);
-  font-size: 18px;
+  gap: 12px;
+  font-size: 22px;
+  font-weight: 600;
 }
 
-.marca-auth .logo,
-.topo .marca .logo {
-  flex: none;
-  display: grid;
-  place-items: center;
-  width: 32px;
-  height: 40px;
-  border-radius: 4px;
-  background: var(--cor);
-  color: #fff;
-  font-size: 18px;
+.marca-auth .logo {
+  width: 44px;
+  height: 44px;
 }
 
 .obs-email {
   margin: 14px 0 4px;
   padding: 10px 12px;
-  border-radius: var(--raio);
-  background: #fff8e1;
-  border: 1px solid #f9e3a3;
+  border-radius: 8px;
+  background: var(--aviso-fundo);
+  border: 1px solid var(--aviso-borda);
   font-size: 13px;
   line-height: 1.5;
 }
@@ -498,13 +654,16 @@ input[type='checkbox'] {
 .dialogo {
   width: min(520px, calc(100vw - 32px));
   padding: 0;
-  border: 0;
+  border: 1px solid var(--borda-forte);
   border-radius: var(--raio);
-  box-shadow: 0 8px 32px rgb(0 0 0 / 30%);
+  background: var(--superficie);
+  color: var(--texto);
+  box-shadow: var(--sombra);
 }
 
 .dialogo::backdrop {
-  background: rgb(0 0 0 / 45%);
+  background: rgb(5 6 8 / 70%);
+  backdrop-filter: blur(2px);
 }
 
 .dialogo .conteudo {
@@ -514,30 +673,33 @@ input[type='checkbox'] {
 .dialogo h2 {
   margin: 0;
   font-size: 20px;
-  font-weight: 500;
+  font-weight: 600;
 }
 
 /* ---------- Diversos novos ---------- */
 
 .chip {
   display: inline-block;
-  padding: 2px 10px;
-  border-radius: 12px;
-  background: color-mix(in srgb, var(--cor) 12%, #fff);
+  padding: 1px 9px;
+  border-radius: 999px;
+  border: 1px solid color-mix(in srgb, var(--cor) 45%, transparent);
+  background: color-mix(in srgb, var(--cor) 14%, transparent);
   color: var(--cor);
-  font-size: 12px;
+  font-family: var(--mono);
+  font-size: 11px;
   font-weight: 600;
 }
 
 .chip.cinza {
-  background: #f1f3f4;
-  color: var(--texto-suave);
+  border-color: var(--borda-forte);
+  background: var(--superficie-3);
+  color: var(--prata);
 }
 
 .barra-progresso {
-  height: 10px;
-  border-radius: 5px;
-  background: #fff;
+  height: 8px;
+  border-radius: 4px;
+  background: var(--superficie-3);
   border: 1px solid var(--borda);
   overflow: hidden;
 }
@@ -545,21 +707,164 @@ input[type='checkbox'] {
 .barra-progresso span {
   display: block;
   height: 100%;
-  background: var(--cor);
+  background: linear-gradient(90deg, var(--cor), color-mix(in srgb, var(--cor) 60%, var(--prata-clara)));
   transition: width 0.3s;
 }
 
 .certo {
-  color: #188038;
+  color: var(--certo);
 }
 
 .errado {
   color: var(--erro);
 }
 
+/* ---------- Traços da Hidra (identidade própria do GenForm) ---------- */
+
+/* Espaço para o rodapé fixo com a marca d'água */
+body {
+  padding-bottom: 28px;
+}
+
+.tela-auth {
+  min-height: calc(100vh - 28px);
+}
+
+.aviso-flutuante {
+  bottom: 44px;
+}
+
+/* Escamas de hidra, bem discretas, no cabeçalho do formulário e no login */
+.cartao.cabecalho,
+.caixa-auth {
+  background-image:
+    linear-gradient(180deg, transparent 40%, var(--superficie) 100%),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='16' viewBox='0 0 28 16'%3E%3Cpath d='M0 16a14 14 0 0 1 14-14a14 14 0 0 1 14 14M-14 8a14 14 0 0 1 14-14a14 14 0 0 1 14 14M14 8a14 14 0 0 1 14-14a14 14 0 0 1 14 14' fill='none' stroke='%23c3cad2' stroke-opacity='.07' stroke-width='1'/%3E%3C/svg%3E");
+  background-color: var(--superficie);
+}
+
+/* Três cabeças: duas em prata e a do meio (a "em foco") em verde */
+.tres-cabecas {
+  display: inline-flex;
+  align-items: flex-end;
+  gap: 3px;
+  height: 10px;
+}
+
+.tres-cabecas i {
+  width: 5px;
+  height: 5px;
+  border-radius: 50% 50% 45% 45%;
+  background: var(--prata);
+  animation: cabeca 1.8s ease-in-out infinite;
+}
+
+.tres-cabecas i:nth-child(2) {
+  width: 6px;
+  height: 7px;
+  background: var(--verde);
+  box-shadow: 0 0 6px color-mix(in srgb, var(--verde) 70%, transparent);
+  animation-delay: 0.2s;
+}
+
+.tres-cabecas i:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+@keyframes cabeca {
+  0%,
+  60%,
+  100% {
+    transform: translateY(0);
+  }
+  30% {
+    transform: translateY(-3px);
+  }
+}
+
+/* "Carregando..." com as três cabeças em cima */
+.carregando::before {
+  content: '';
+  display: block;
+  width: 26px;
+  height: 10px;
+  margin: 0 auto 12px;
+  background:
+    radial-gradient(circle 3px at 4px 6px, var(--prata) 98%, transparent),
+    radial-gradient(circle 4px at 13px 5px, var(--verde) 98%, transparent),
+    radial-gradient(circle 3px at 22px 6px, var(--prata) 98%, transparent);
+  animation: respira 1.4s ease-in-out infinite;
+}
+
+@keyframes respira {
+  50% {
+    opacity: 0.35;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tres-cabecas i,
+  .carregando::before {
+    animation: none;
+  }
+}
+
+/* Bolinha pulsando do "ao vivo" */
+.ponto-vivo {
+  display: inline-block;
+  flex: none;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: currentColor;
+  box-shadow: 0 0 0 0 currentColor;
+  animation: vivo 1.6s ease-out infinite;
+}
+
+@keyframes vivo {
+  70% {
+    box-shadow: 0 0 0 7px transparent;
+  }
+  100% {
+    box-shadow: 0 0 0 0 transparent;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ponto-vivo {
+    animation: none;
+  }
+}
+
+/* Teclas de atalho */
+kbd {
+  display: inline-grid;
+  place-items: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 5px;
+  border: 1px solid var(--borda-forte);
+  border-bottom-width: 2px;
+  border-radius: 5px;
+  background: var(--superficie-2);
+  color: var(--prata);
+  font-family: var(--mono);
+  font-size: 11px;
+  line-height: 1;
+}
+
+/* Barras de rolagem discretas, como na Hidra */
+* {
+  scrollbar-color: var(--borda-forte) transparent;
+}
+
 @media (max-width: 600px) {
   .cartao {
     padding: 18px 16px;
+  }
+
+  .cartao.cabecalho {
+    padding-top: 24px;
   }
 
   .caixa-auth {

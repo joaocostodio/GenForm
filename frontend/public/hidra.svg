@@ -1,0 +1,57 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
+  <!-- Logo do GenForm: a Hidra (um corpo, três cabeças) em verde, com detalhes em prata. -->
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#1c2420"/>
+      <stop offset="1" stop-color="#0b0e0d"/>
+    </linearGradient>
+    <radialGradient id="glow" cx=".5" cy=".38" r=".55">
+      <stop offset="0" stop-color="#3ddc97" stop-opacity=".28"/>
+      <stop offset="1" stop-color="#3ddc97" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="prata" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#f4f6f8"/>
+      <stop offset=".5" stop-color="#a9b1ba"/>
+      <stop offset="1" stop-color="#e2e6ea"/>
+    </linearGradient>
+    <linearGradient id="neck" gradientUnits="userSpaceOnUse" x1="0" y1="226" x2="0" y2="96">
+      <stop offset="0" stop-color="#14714a"/>
+      <stop offset="1" stop-color="#3ddc97"/>
+    </linearGradient>
+    <linearGradient id="head" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#8ff0c4"/>
+      <stop offset="1" stop-color="#2fbf80"/>
+    </linearGradient>
+    <linearGradient id="headOn" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#d6fbe9"/>
+      <stop offset="1" stop-color="#5fe3a9"/>
+    </linearGradient>
+    <g id="cabeca">
+      <path d="M0 -36 C10 -31 20 -17 20 -3 C20 11 10 21 0 26 C-10 21 -20 11 -20 -3 C-20 -17 -10 -31 0 -36 Z" stroke="url(#prata)" stroke-width="2.5"/>
+      <g fill="#06140d">
+        <ellipse cx="-8" cy="-9" rx="2.4" ry="5.6" transform="rotate(-22 -8 -9)"/>
+        <ellipse cx="8" cy="-9" rx="2.4" ry="5.6" transform="rotate(22 8 -9)"/>
+      </g>
+    </g>
+  </defs>
+
+  <rect x="6" y="6" width="244" height="244" rx="58" fill="url(#bg)"/>
+  <rect x="6" y="6" width="244" height="244" rx="58" fill="url(#glow)"/>
+  <rect x="8" y="8" width="240" height="240" rx="56" fill="none" stroke="url(#prata)" stroke-width="4"/>
+
+  <g fill="none" stroke-linecap="round">
+    <path d="M80 204 A48 15 0 0 1 176 204" stroke="#0f5a3b" stroke-width="15"/>
+    <g stroke="url(#neck)">
+      <path d="M128 200 C128 172 86 180 78 152 C72 132 82 124 74 106" stroke-width="17"/>
+      <path d="M128 200 C128 172 170 180 178 152 C184 132 174 124 182 106" stroke-width="17"/>
+      <path d="M128 202 C114 176 142 148 128 98" stroke-width="19"/>
+    </g>
+    <path d="M80 204 A48 15 0 0 0 176 204" stroke="url(#prata)" stroke-width="17"/>
+  </g>
+
+  <path d="M128 40 V28 M128 28 L122 20 M128 28 L134 20" fill="none" stroke="url(#prata)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <use href="#cabeca" transform="translate(72 98) rotate(-22) scale(.88)" fill="url(#head)"/>
+  <use href="#cabeca" transform="translate(184 98) rotate(22) scale(.88)" fill="url(#head)"/>
+  <use href="#cabeca" transform="translate(128 76)" fill="url(#headOn)"/>
+</svg>

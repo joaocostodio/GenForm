@@ -23,19 +23,37 @@
     @case ('hora') { <p class="previa curta">Hora 🕒</p> }
 
     @case ('escala') {
+      @let estilo = c.escala.controls.estilo.value;
       <div class="escala" formGroupName="escala">
-        <div class="linha">
-          <select class="campo-caixa" formControlName="min" aria-label="Início da escala">
-            <option [ngValue]="0">0</option>
-            <option [ngValue]="1">1</option>
-          </select>
-          <span>até</span>
-          <select class="campo-caixa" formControlName="max" aria-label="Fim da escala">
-            @for (n of maximos; track n) {
-              <option [ngValue]="n">{{ n }}</option>
-            }
-          </select>
+        <div class="estilos" role="radiogroup" aria-label="Estilo da escala">
+          @for (s of estilos; track s.valor) {
+            <label class="estilo" [class.ativo]="estilo === s.valor">
+              <input type="radio" formControlName="estilo" [value]="s.valor" class="sr-only" />
+              <span class="icone-estilo" aria-hidden="true">{{ s.icone }}</span> {{ s.rotulo }}
+            </label>
+          }
         </div>
+        @if (estilo === 'nps') {
+          <p class="suave">De 0 a 10. Nas respostas aparece o <strong>NPS</strong>: % de promotores (9–10) menos % de detratores (0–6).</p>
+        } @else {
+          <div class="linha">
+            @if (estilo !== 'estrelas') {
+              <select class="campo-caixa" formControlName="min" aria-label="Início da escala">
+                <option [ngValue]="0">0</option>
+                <option [ngValue]="1">1</option>
+              </select>
+              <span>até</span>
+            }
+            <select class="campo-caixa" formControlName="max" aria-label="Fim da escala">
+              @for (n of maximos; track n) {
+                <option [ngValue]="n">{{ n }}</option>
+              }
+            </select>
+            @if (estilo === 'estrelas') {
+              <span class="estrelas-previa" aria-hidden="true">{{ '★'.repeat(c.escala.controls.max.value) }}</span>
+            }
+          </div>
+        }
         <div class="linha sem-quebra">
           <span class="suave">{{ c.escala.controls.min.value }}</span>
           <input class="campo" formControlName="rotuloMin" placeholder="Rótulo (opcional)" aria-label="Rótulo do início" />
@@ -76,6 +94,12 @@
             @if (modoTeste() && mostrarGabarito()) {
               <button type="button" class="btn-icone certo-btn" (click)="alternarCorreta(j)"
                 [attr.aria-pressed]="opcao.controls.correta.value" title="Marcar como resposta correta">✓</button>
+            }
+            @if (c.usarVagas.value) {
+              <label class="vagas" title="Vagas desta opção. Vazio = sem limite.">
+                <input class="campo-caixa" type="number" min="1" formControlName="vagas" placeholder="∞" [attr.aria-label]="'Vagas da opção ' + (j + 1)" />
+                <span>vagas</span>
+              </label>
             }
             @if (temDesvio() && c.usarDesvios.value) {
               <select class="campo-caixa desvio" formControlName="irPara" aria-label="Ir para depois desta opção">
@@ -168,6 +192,9 @@
         }
         @if (temDesvio()) {
           <label><input type="checkbox" [checked]="c.usarDesvios.value" (change)="alternar('desvios', $event)" /> Ir para a seção com base na resposta</label>
+        }
+        @if (temOpcoes()) {
+          <label><input type="checkbox" [checked]="c.usarVagas.value" (change)="alternar('vagas', $event)" /> Limitar vagas por opção</label>
         }
       </div>
     </details>

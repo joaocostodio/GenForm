@@ -102,9 +102,15 @@ type Aba = 'link' | 'qr' | 'incorporar';
       place-items: center;
       padding: 8px;
     }
+    .qr img {
+      padding: 10px;
+      border-radius: 12px;
+      background: #fff;
+      box-shadow: 0 0 0 1px var(--prata-escura), 0 0 0 4px color-mix(in srgb, var(--verde) 25%, transparent);
+    }
     .codigo {
       width: 100%;
-      font-family: Consolas, monospace;
+      font-family: var(--mono);
       font-size: 13px;
       resize: none;
     }
@@ -118,8 +124,8 @@ type Aba = 'link' | 'qr' | 'incorporar';
       margin-bottom: 12px;
       padding: 10px 12px;
       border-radius: var(--raio);
-      background: #fff8e1;
-      border: 1px solid #f9e3a3;
+      background: var(--aviso-fundo);
+      border: 1px solid var(--aviso-borda);
       font-size: 13px;
     }
     .aviso-rede p {

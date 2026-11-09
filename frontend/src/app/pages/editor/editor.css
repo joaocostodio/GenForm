@@ -7,20 +7,21 @@
   width: 26px;
   height: 26px;
   border-radius: 50%;
-  border: 2px solid #fff;
+  border: 2px solid var(--superficie);
   box-shadow: 0 0 0 1px var(--borda);
   cursor: pointer;
 }
 
 .cor.escolhida {
-  box-shadow: 0 0 0 2px var(--texto);
+  box-shadow: 0 0 0 2px var(--prata-clara);
 }
 
 .aviso-teste {
   margin: 12px 0 0;
   padding: 10px 14px;
   border-radius: var(--raio);
-  background: #fff8e1;
+  background: var(--aviso-fundo);
+  border: 1px solid var(--aviso-borda);
   font-size: 14px;
 }
 

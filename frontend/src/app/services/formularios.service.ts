@@ -1,8 +1,11 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
+import { Observable } from 'rxjs';
 import {
   ConfigForm,
   ConteudoForm,
+  EnvioExtras,
+  EventoAoVivo,
   Formulario,
   FormularioPublico,
   FormularioResumo,
@@ -66,13 +69,36 @@ export class FormulariosService {
     return this.http.delete<void>(`${this.base}/${id}/respostas`);
   }
 
-  // ---------- Quem responde (link público) ----------
-
-  abrirPublico(id: string) {
-    return this.http.get<FormularioPublico>(`/api/publico/${id}`);
+  /**
+   * Respostas chegando em tempo real (Server-Sent Events).
+   * O EventSource reconecta sozinho; ao se inscrever abre a conexão e ao cancelar fecha.
+   */
+  aoVivo(id: string) {
+    return new Observable<EventoAoVivo>((assinante) => {
+      const fonte = new EventSource(`${this.base}/${id}/ao-vivo`);
+      fonte.onmessage = (e) => assinante.next(JSON.parse(e.data) as EventoAoVivo);
+      return () => fonte.close();
+    });
   }
 
-  responder(id: string, valores: Record<string, ValorResposta>) {
-    return this.http.post<ResultadoEnvio>(`/api/publico/${id}/respostas`, { valores });
+  /** Manda uma mensagem de teste para o webhook (Discord, Slack...). */
+  testarWebhook(id: string, url: string) {
+    return this.http.post<{ ok: boolean }>(`${this.base}/${id}/webhook/teste`, { url });
+  }
+
+  // ---------- Quem responde (link público) ----------
+
+  /** O código de acesso vai no cabeçalho, nunca na URL. */
+  private cabecalhoCodigo(codigo?: string) {
+    return codigo ? new HttpHeaders({ 'x-codigo-acesso': codigo }) : undefined;
+  }
+
+  abrirPublico(id: string, codigo?: string) {
+    return this.http.get<FormularioPublico>(`/api/publico/${id}`, { headers: this.cabecalhoCodigo(codigo) });
+  }
+
+  responder(id: string, valores: Record<string, ValorResposta>, extras: EnvioExtras = {}) {
+    const { codigo, ...resto } = extras;
+    return this.http.post<ResultadoEnvio>(`/api/publico/${id}/respostas`, { valores, ...resto }, { headers: this.cabecalhoCodigo(codigo) });
   }
 }

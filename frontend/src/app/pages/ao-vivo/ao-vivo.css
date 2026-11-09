@@ -1,0 +1,479 @@
+.ao-vivo {
+  display: flex;
+  flex-direction: column;
+  min-height: calc(100vh - 28px);
+}
+
+/* ---------- Barra do topo ---------- */
+
+.barra {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 20px;
+  border-bottom: 1px solid var(--borda);
+  background: rgb(17 18 23 / 80%);
+}
+
+.titulo {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.titulo h1 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.selo {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  color: #ff6b6b;
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+}
+
+.conexao {
+  font-family: var(--mono);
+  font-size: 11.5px;
+  color: var(--verde);
+  white-space: nowrap;
+}
+
+.conexao.off {
+  color: var(--texto-suave);
+}
+
+/* ---------- Palco ---------- */
+
+.palco {
+  flex: 1;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 300px;
+  gap: 20px;
+  width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.palco .cartao {
+  margin: 0;
+}
+
+.destaque {
+  display: flex;
+  flex-direction: column;
+  padding: 28px 32px;
+}
+
+.numero-pergunta {
+  margin: 0 0 6px;
+  font-family: var(--mono);
+  font-size: 13px;
+  color: var(--prata-escura);
+}
+
+.numero-pergunta span {
+  color: var(--cor);
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.destaque h2 {
+  margin: 0 0 6px;
+  font-size: clamp(24px, 3vw, 38px);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+}
+
+/* Barras grandes, para enxergar do fundo da sala */
+.barras {
+  list-style: none;
+  margin: 24px 0 0;
+  padding: 0;
+  display: grid;
+  gap: 14px;
+}
+
+.barras li {
+  display: grid;
+  grid-template-columns: minmax(120px, 28%) 1fr 90px;
+  align-items: center;
+  gap: 16px;
+  font-size: clamp(15px, 1.4vw, 20px);
+}
+
+.barras .rotulo {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.trilho {
+  height: clamp(26px, 3vw, 40px);
+  border-radius: 8px;
+  background: var(--superficie-3);
+  overflow: hidden;
+}
+
+.preenchido {
+  display: block;
+  height: 100%;
+  min-width: 2px;
+  border-radius: 8px;
+  background: linear-gradient(90deg, color-mix(in srgb, var(--cor) 75%, #000), var(--cor));
+  box-shadow: 0 0 18px color-mix(in srgb, var(--cor) 35%, transparent);
+  transition: width 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.qtd {
+  text-align: right;
+  font-family: var(--mono);
+}
+
+.qtd b {
+  font-size: 1.15em;
+}
+
+.qtd small {
+  color: var(--texto-suave);
+}
+
+/* Teste: depois de revelar, a certa brilha em verde e as outras apagam */
+.barras li.certa .rotulo {
+  color: var(--verde);
+  font-weight: 700;
+}
+
+.barras li.certa .preenchido {
+  background: linear-gradient(90deg, var(--verde-escuro), var(--verde));
+}
+
+.barras:has(li.certa) li:not(.certa) {
+  opacity: 0.45;
+}
+
+.rolagem {
+  overflow-x: auto;
+  margin-top: 20px;
+}
+
+.matriz {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 17px;
+}
+
+.matriz th,
+.matriz td {
+  padding: 12px;
+  text-align: center;
+  font-weight: 400;
+}
+
+.matriz tbody th {
+  text-align: left;
+}
+
+.matriz td {
+  background: color-mix(in srgb, var(--cor) var(--intensidade, 0%), var(--superficie-2));
+  border: 2px solid var(--superficie);
+  font-family: var(--mono);
+  transition: background 0.4s;
+}
+
+/* Respostas abertas como "bolhas" */
+.bolhas {
+  list-style: none;
+  margin: 24px 0 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-content: flex-start;
+}
+
+.bolhas li {
+  max-width: 100%;
+  padding: 10px 16px;
+  border: 1px solid var(--borda-forte);
+  border-radius: 14px 14px 14px 4px;
+  background: var(--superficie-2);
+  font-size: 17px;
+  white-space: pre-line;
+  animation: entra 0.4s ease-out;
+}
+
+.bolhas li:first-child {
+  border-color: color-mix(in srgb, var(--cor) 60%, transparent);
+}
+
+.esperando {
+  flex: 1;
+  display: grid;
+  place-items: center;
+  min-height: 200px;
+  color: var(--texto-suave);
+  font-size: 18px;
+}
+
+/* ---------- Lateral ---------- */
+
+.lateral {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.qr-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 8px;
+}
+
+.qr-card img {
+  width: 100%;
+  max-width: 220px;
+  height: auto;
+  padding: 10px;
+  border-radius: 14px;
+  background: #fff;
+  box-shadow: 0 0 0 1px var(--prata-escura), 0 0 0 5px color-mix(in srgb, var(--verde) 22%, transparent);
+}
+
+.qr-card .link {
+  margin: 8px 0 0;
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--prata);
+  word-break: break-all;
+}
+
+.qr-card .suave {
+  margin: 0;
+  font-size: 13px;
+}
+
+.contador {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  text-align: center;
+}
+
+.numero-grande {
+  font-size: 84px;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.04em;
+  background: linear-gradient(180deg, var(--prata-clara), var(--prata-escura));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: pula 0.5s cubic-bezier(0.2, 1.6, 0.4, 1);
+}
+
+.rotulo-contador {
+  font-family: var(--mono);
+  font-size: 12px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--texto-suave);
+}
+
+.ultima {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 10px;
+  font-size: 12.5px;
+  color: var(--verde);
+}
+
+.ranking h3 {
+  margin: 0 0 4px;
+  font-size: 15px;
+}
+
+.ranking ol {
+  list-style: none;
+  margin: 10px 0 0;
+  padding: 0;
+  display: grid;
+  gap: 6px;
+}
+
+.ranking li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: var(--superficie-2);
+  font-family: var(--mono);
+  font-size: 14px;
+  animation: entra 0.4s ease-out;
+}
+
+.ranking .nome {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-family: var(--fonte);
+}
+
+.ranking .pos {
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--superficie-3);
+  color: var(--prata);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.ranking li:first-child .pos {
+  background: linear-gradient(180deg, var(--prata-clara), var(--prata-escura));
+  color: var(--tinta);
+}
+
+.ranking li:first-child {
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--verde) 45%, transparent);
+}
+
+.ranking small {
+  color: var(--texto-suave);
+}
+
+/* ---------- Controles ---------- */
+
+.controles {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 20px 20px;
+}
+
+.pontos {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.pontos button {
+  width: 10px;
+  height: 10px;
+  padding: 0;
+  border: 1px solid var(--prata-escura);
+  border-radius: 50%;
+  background: transparent;
+  cursor: pointer;
+}
+
+.pontos button.ativo {
+  width: 24px;
+  border-radius: 5px;
+  border-color: var(--cor);
+  background: var(--cor);
+}
+
+.atalhos {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+}
+
+@keyframes pula {
+  0% {
+    transform: scale(0.6);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes entra {
+  from {
+    transform: translateY(6px);
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .numero-grande,
+  .bolhas li,
+  .ranking li {
+    animation: none;
+  }
+}
+
+@media (max-width: 900px) {
+  .palco {
+    grid-template-columns: 1fr;
+    padding: 12px;
+  }
+
+  .destaque {
+    padding: 20px;
+  }
+
+  .barras li {
+    grid-template-columns: 1fr auto;
+  }
+
+  .barras .trilho {
+    grid-column: 1 / -1;
+    grid-row: 2;
+  }
+
+  .atalhos,
+  .barra .btn.contorno {
+    display: none;
+  }
+}
+
+.indicador {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin: 12px 0 0;
+}
+
+.valor-indicador {
+  font-family: var(--mono);
+  font-size: clamp(32px, 4vw, 52px);
+  font-weight: 700;
+  color: #f5c451;
+}
+
+.valor-indicador.bom {
+  color: var(--verde);
+}
+
+.valor-indicador.ruim {
+  color: var(--erro);
+}

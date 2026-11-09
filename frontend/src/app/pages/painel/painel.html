@@ -1,7 +1,7 @@
 <header class="topo">
   <a routerLink="/" class="marca">
-    <span class="logo" aria-hidden="true">≡</span>
-    <span>Formulários</span>
+    <img class="logo" src="hidra.svg" alt="" />
+    <span class="nome-marca"><b>Gen</b><em>Form</em></span>
   </a>
   <label class="busca">
     <span class="sr-only">Pesquisar formulários</span>
@@ -86,6 +86,7 @@
           </a>
           <div class="acoes">
             <a class="btn-icone" [routerLink]="['/forms', form.id, 'respostas']" title="Ver respostas">📊</a>
+            <a class="btn-icone" [routerLink]="['/forms', form.id, 'ao-vivo']" title="Modo ao vivo (projetar na sala)">📡</a>
             <button type="button" class="btn-icone" (click)="enviar(form)" title="Enviar (link, QR code)">🔗</button>
             <button type="button" class="btn-icone" (click)="duplicar(form)" title="Duplicar">⧉</button>
             <button type="button" class="btn-icone" (click)="excluir(form)" title="Excluir">🗑</button>

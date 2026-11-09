@@ -66,7 +66,7 @@ h2 {
 .trilho {
   height: 22px;
   border-radius: 4px;
-  background: #f1f3f4;
+  background: var(--superficie-3);
   overflow: hidden;
 }
 
@@ -93,7 +93,7 @@ h2 {
   margin-top: 6px;
   padding: 8px 12px;
   border-radius: 4px;
-  background: #f8f9fa;
+  background: var(--superficie-2);
   white-space: pre-line;
 }
 
@@ -135,8 +135,8 @@ h2 {
 
 /* Quanto mais respostas, mais forte a cor da célula */
 .matriz td {
-  background: color-mix(in srgb, var(--cor) var(--intensidade, 0%), #fff);
-  border: 1px solid #fff;
+  background: color-mix(in srgb, var(--cor) var(--intensidade, 0%), var(--superficie-2));
+  border: 1px solid var(--superficie);
 }
 
 @media (max-width: 600px) {
@@ -152,4 +152,82 @@ h2 {
     grid-column: 1 / -1;
     grid-row: 2;
   }
+}
+
+.btn.ao-vivo .ponto-vivo {
+  color: #ff4d4d;
+}
+
+/* Média das escalas/estrelas e NPS */
+.media-escala {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  margin: 10px 0 0;
+}
+
+.media-escala b {
+  font-size: 26px;
+  font-family: var(--mono);
+}
+
+.estrela-media {
+  color: #f5c451;
+  font-size: 22px;
+}
+
+.nps-resumo {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 14px;
+  margin-top: 12px;
+}
+
+.nps-nota {
+  padding: 4px 12px;
+  border-radius: 8px;
+  background: var(--superficie-3);
+  font-family: var(--mono);
+  font-size: 20px;
+  font-weight: 700;
+  color: #f0b866;
+}
+
+.nps-nota.bom {
+  color: var(--verde);
+}
+
+.nps-nota.ruim {
+  color: var(--erro);
+}
+
+.nps-barra {
+  display: flex;
+  flex: 1 1 200px;
+  height: 10px;
+  border-radius: 5px;
+  overflow: hidden;
+  background: var(--superficie-3);
+}
+
+.nps-barra i {
+  display: block;
+  height: 100%;
+}
+
+.nps-barra .det {
+  background: #ff7a7a;
+}
+
+.nps-barra .neu {
+  background: #f0b866;
+}
+
+.nps-barra .pro {
+  background: var(--verde);
+}
+
+.numero.lotado {
+  color: var(--erro);
 }

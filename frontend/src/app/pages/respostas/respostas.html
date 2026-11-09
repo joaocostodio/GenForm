@@ -24,6 +24,9 @@
           <div class="linha">
             <h1>{{ respostas().length }} {{ respostas().length === 1 ? 'resposta' : 'respostas' }}</h1>
             <span class="espaco"></span>
+            <a class="btn ao-vivo" [routerLink]="['/forms', id(), 'ao-vivo']" title="Tela para projetar: respostas e gráficos em tempo real">
+              <span class="ponto-vivo" aria-hidden="true"></span> Modo ao vivo
+            </a>
             <button type="button" class="btn contorno" (click)="exportar()" [disabled]="!respostas().length">Exportar CSV</button>
             <button type="button" class="btn perigo" (click)="excluirTodas()" [disabled]="!respostas().length">Excluir todas</button>
           </div>
@@ -55,13 +58,35 @@
                 }
               </p>
 
+              @if (item.nps; as n) {
+                <div class="nps-resumo">
+                  <span class="nps-nota" [class.bom]="n.nota >= 50" [class.ruim]="n.nota < 0">NPS {{ n.nota > 0 ? '+' : '' }}{{ n.nota }}</span>
+                  <span class="nps-barra" aria-hidden="true">
+                    <i class="det" [style.width.%]="n.detratores"></i><i class="neu" [style.width.%]="n.neutros"></i><i class="pro" [style.width.%]="n.promotores"></i>
+                  </span>
+                  <span class="suave">{{ n.promotores }}% promotores · {{ n.neutros }}% neutros · {{ n.detratores }}% detratores</span>
+                </div>
+              } @else if (item.media !== null) {
+                <p class="media-escala">
+                  Média <b>{{ item.media | number: '1.1-1' }}</b>
+                  @if (item.pergunta.escala?.estilo === 'estrelas') {
+                    <span class="estrela-media" aria-hidden="true">★</span>
+                  }
+                  <span class="suave">de {{ item.pergunta.escala?.max }}</span>
+                </p>
+              }
+
               @if (item.barras) {
                 <ul class="barras">
                   @for (b of item.barras; track b.rotulo) {
                     <li>
                       <span class="rotulo" [title]="b.rotulo">{{ b.rotulo }}</span>
                       <span class="trilho"><span class="preenchido" [style.width.%]="b.pct"></span></span>
-                      <span class="numero">{{ b.qtd }} ({{ b.pct }}%)</span>
+                      @if (b.limite) {
+                        <span class="numero" [class.lotado]="b.qtd >= b.limite">{{ b.qtd }}/{{ b.limite }} vagas</span>
+                      } @else {
+                        <span class="numero">{{ b.qtd }} ({{ b.pct }}%)</span>
+                      }
                     </li>
                   }
                 </ul>
@@ -106,7 +131,12 @@
             <span>{{ indice() + 1 }} de {{ respostas().length }}</span>
             <button type="button" class="btn-icone" (click)="navegar(1)" [disabled]="indice() === respostas().length - 1" title="Próxima">›</button>
             <span class="espaco"></span>
-            <span class="suave">Enviada em {{ r.enviadoEm | date: 'dd/MM/yyyy HH:mm' }}</span>
+            <span class="suave">
+              Enviada em {{ r.enviadoEm | date: 'dd/MM/yyyy HH:mm' }}
+              @if (r.duracaoSeg) {
+                · levou {{ duracao(r.duracaoSeg) }}
+              }
+            </span>
             <button type="button" class="btn-icone" (click)="excluirAtual()" title="Excluir esta resposta">🗑</button>
           </section>
 

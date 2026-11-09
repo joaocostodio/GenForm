@@ -1,0 +1,172 @@
+<div class="ao-vivo fundo-tema" [style.--cor]="form()?.cor">
+  <header class="barra">
+    <a class="btn-icone" [routerLink]="['/forms', id(), 'respostas']" title="Sair do modo ao vivo" aria-label="Sair do modo ao vivo">←</a>
+    <img class="logo" src="hidra.svg" alt="" />
+    <div class="flex titulo">
+      <span class="selo"><span class="ponto-vivo" aria-hidden="true"></span> AO VIVO</span>
+      <h1>{{ form()?.titulo }}</h1>
+    </div>
+    @if (form() && !form()!.config.aceitandoRespostas) {
+      <span class="chip cinza">Fechado para respostas</span>
+    }
+    <span class="conexao" [class.off]="!conectado()">{{ conectado() ? '● conectado' : '○ reconectando...' }}</span>
+    <button type="button" class="btn contorno" (click)="telaCheia()" title="Tela cheia (F)">⛶ Tela cheia</button>
+  </header>
+
+  @switch (estado()) {
+    @case ('carregando') {
+      <p class="carregando">Carregando...</p>
+    }
+    @case ('erro') {
+      <div class="vazio">
+        <p>Não foi possível abrir o modo ao vivo deste formulário.</p>
+        <button type="button" class="btn" (click)="carregar()">Tentar de novo</button>
+      </div>
+    }
+    @default {
+      <main class="palco">
+        <!-- Pergunta em destaque -->
+        <section class="cartao destaque">
+          @if (destaque(); as d) {
+            <p class="numero-pergunta">
+              <span>{{ (indice() + 1).toString().padStart(2, '0') }}</span> / {{ perguntas().length.toString().padStart(2, '0') }}
+            </p>
+            <h2>{{ d.pergunta.titulo || 'Pergunta sem título' }}</h2>
+            <p class="suave">
+              {{ d.respondidas }} {{ d.respondidas === 1 ? 'resposta' : 'respostas' }}
+              @if (d.acertos !== null && d.respondidas) {
+                · <span class="certo">{{ d.acertos }} {{ d.acertos === 1 ? 'acerto' : 'acertos' }}
+                  ({{ (d.acertos / d.respondidas) * 100 | number: '1.0-0' }}%)</span>
+              }
+            </p>
+
+            @if (d.nps; as n) {
+              <p class="indicador">
+                <span class="valor-indicador" [class.bom]="n.nota >= 50" [class.ruim]="n.nota < 0">NPS {{ n.nota > 0 ? '+' : '' }}{{ n.nota }}</span>
+                <span class="suave">{{ n.promotores }}% promotores · {{ n.detratores }}% detratores</span>
+              </p>
+            } @else if (d.media !== null) {
+              <p class="indicador">
+                <span class="valor-indicador">{{ d.media | number: '1.1-1' }}{{ d.pergunta.escala?.estilo === 'estrelas' ? ' ★' : '' }}</span>
+                <span class="suave">média (de {{ d.pergunta.escala?.max }})</span>
+              </p>
+            }
+
+            @if (d.barras) {
+              <ul class="barras">
+                @for (b of d.barras; track b.rotulo) {
+                  <li [class.certa]="certa(b.rotulo)">
+                    <span class="rotulo" [title]="b.rotulo">
+                      @if (certa(b.rotulo)) {
+                        <span aria-label="resposta certa">✓</span>
+                      }
+                      {{ b.rotulo }}
+                    </span>
+                    <span class="trilho"><span class="preenchido" [style.width.%]="b.pct"></span></span>
+                    <span class="qtd"><b>{{ b.qtd }}</b> <small>{{ b.pct }}%</small></span>
+                  </li>
+                }
+              </ul>
+            } @else if (d.matriz) {
+              <div class="rolagem">
+                <table class="matriz">
+                  <thead>
+                    <tr>
+                      <th></th>
+                      @for (c of d.matriz[0]?.colunas; track c.rotulo) {
+                        <th scope="col">{{ c.rotulo }}</th>
+                      }
+                    </tr>
+                  </thead>
+                  <tbody>
+                    @for (l of d.matriz; track l.linha) {
+                      <tr>
+                        <th scope="row">{{ l.linha }}</th>
+                        @for (c of l.colunas; track c.rotulo) {
+                          <td [style.--intensidade]="c.pct + '%'">{{ c.qtd }}</td>
+                        }
+                      </tr>
+                    }
+                  </tbody>
+                </table>
+              </div>
+            } @else if (d.textos.length) {
+              <ul class="bolhas">
+                @for (t of d.textos.slice(0, 12); track $index) {
+                  <li>{{ t }}</li>
+                }
+              </ul>
+            } @else {
+              <p class="esperando">Esperando a primeira resposta...</p>
+            }
+          } @else {
+            <p class="esperando">Este formulário ainda não tem perguntas.</p>
+          }
+        </section>
+
+        <!-- Lateral: QR, contador e ranking -->
+        <aside class="lateral">
+          <section class="cartao qr-card">
+            <img [src]="urlQr()" width="200" height="200" alt="QR code para responder o formulário" />
+            <p class="link">{{ link() }}</p>
+            <p class="suave">Aponte a câmera do celular e responda</p>
+          </section>
+
+          <section class="cartao contador">
+            @for (n of [total()]; track n) {
+              <span class="numero-grande">{{ n }}</span>
+            }
+            <span class="rotulo-contador">{{ total() === 1 ? 'resposta' : 'respostas' }}</span>
+            @if (ha(); as h) {
+              <span class="ultima"><span class="tres-cabecas" aria-hidden="true"><i></i><i></i><i></i></span> última há {{ h }}</span>
+            }
+          </section>
+
+          @if (modoTeste()) {
+            <section class="cartao ranking">
+              <h3>Ranking</h3>
+              @if (media(); as m) {
+                <p class="suave">Média da turma: <strong>{{ m.pontos | number: '1.0-1' }} / {{ m.total }}</strong></p>
+              }
+              @if (ranking().length) {
+                <ol>
+                  @for (r of ranking(); track $index) {
+                    <li>
+                      <span class="pos">{{ $index + 1 }}</span>
+                      <span class="flex nome">{{ r.nome }}</span>
+                      <b>{{ r.nota!.pontos }}</b><small>/{{ r.nota!.total }}</small>
+                    </li>
+                  }
+                </ol>
+              } @else {
+                <p class="suave">Ninguém respondeu ainda.</p>
+              }
+            </section>
+          }
+        </aside>
+      </main>
+
+      <!-- Controles -->
+      <nav class="controles" aria-label="Perguntas">
+        <button type="button" class="btn-icone" (click)="ir(-1)" title="Anterior (←)">‹</button>
+        <span class="pontos">
+          @for (p of perguntas(); track p.id; let i = $index) {
+            <button type="button" [class.ativo]="i === indice()" (click)="irPara(i)" [title]="p.titulo || 'Pergunta ' + (i + 1)"
+              [attr.aria-label]="'Pergunta ' + (i + 1)"></button>
+          }
+        </span>
+        <button type="button" class="btn-icone" (click)="ir(1)" title="Próxima (→)">›</button>
+        <button type="button" class="btn texto" (click)="alternarAutomatico()" title="Trocar de pergunta sozinho (Espaço)">
+          {{ automatico() ? '⏸ Pausar troca automática' : '▶ Troca automática' }}
+        </button>
+        @if (podeRevelar()) {
+          <button type="button" class="btn texto" (click)="revelar.set(!revelar())" title="Mostrar a resposta certa (R)">
+            {{ revelar() ? 'Esconder resposta' : '✓ Revelar resposta' }}
+          </button>
+        }
+        <span class="espaco"></span>
+        <span class="atalhos suave"><kbd>←</kbd><kbd>→</kbd> perguntas · <kbd>Espaço</kbd> automático · <kbd>F</kbd> tela cheia</span>
+      </nav>
+    }
+  }
+</div>

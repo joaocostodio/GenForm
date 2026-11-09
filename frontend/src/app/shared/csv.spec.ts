@@ -12,7 +12,8 @@ function form(modoTeste = false): Formulario {
     config: {
       aceitandoRespostas: true, exigirLogin: false, umaRespostaPorPessoa: false, permitirOutraResposta: true,
       mensagemConfirmacao: '', dataLimite: null, limiteRespostas: null, embaralharPerguntas: false,
-      barraProgresso: true, modoTeste, mostrarNota: true,
+      barraProgresso: true, umaPorVez: false, modoTeste,
+      dataAbertura: null, codigoAcesso: '', tempoLimite: null, webhook: '', mostrarNota: true,
     },
     secoes: [
       {

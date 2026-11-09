@@ -31,7 +31,14 @@ export class Configuracoes implements OnInit {
   protected readonly status = signal<'carregando' | 'pronto' | 'erro' | 'nao-encontrado'>('carregando');
   protected readonly salvo = signal('');
 
+  protected readonly webhookStatus = signal<{ ok: boolean; texto: string } | null>(null);
+  protected readonly testandoWebhook = signal(false);
+
   protected readonly form = this.fb.group({
+    dataAbertura: '',
+    codigoAcesso: '',
+    tempoLimite: this.fb.control<number | null>(null),
+    webhook: '',
     aceitandoRespostas: true,
     exigirLogin: false,
     umaRespostaPorPessoa: false,
@@ -41,6 +48,7 @@ export class Configuracoes implements OnInit {
     limiteRespostas: this.fb.control<number | null>(null),
     embaralharPerguntas: false,
     barraProgresso: true,
+    umaPorVez: false,
     modoTeste: false,
     mostrarNota: true,
   });
@@ -49,7 +57,16 @@ export class Configuracoes implements OnInit {
     this.api.buscar(this.id()).subscribe({
       next: (f) => {
         this.dados.set(f);
-        this.form.patchValue({ ...f.config, dataLimite: paraCampoLocal(f.config.dataLimite) }, { emitEvent: false });
+        this.form.patchValue(
+          {
+            ...f.config,
+            dataLimite: paraCampoLocal(f.config.dataLimite),
+            dataAbertura: paraCampoLocal(f.config.dataAbertura ?? null),
+            codigoAcesso: f.config.codigoAcesso ?? '',
+            webhook: f.config.webhook ?? '',
+          },
+          { emitEvent: false },
+        );
         this.ajustarDependencias();
         this.status.set('pronto');
         this.ativarSalvamento();
@@ -71,8 +88,34 @@ export class Configuracoes implements OnInit {
       ...v,
       umaRespostaPorPessoa: v.exigirLogin && v.umaRespostaPorPessoa,
       dataLimite: v.dataLimite ? new Date(v.dataLimite).toISOString() : null,
+      dataAbertura: v.dataAbertura ? new Date(v.dataAbertura).toISOString() : null,
       limiteRespostas: v.limiteRespostas && v.limiteRespostas > 0 ? v.limiteRespostas : null,
+      tempoLimite: v.tempoLimite && v.tempoLimite > 0 ? v.tempoLimite : null,
+      codigoAcesso: v.codigoAcesso.trim(),
+      webhook: v.webhook.trim(),
     };
+  }
+
+  limparAbertura() {
+    this.form.controls.dataAbertura.setValue('');
+  }
+
+  /** Manda uma mensagem de teste para o Discord/Slack. */
+  testarWebhook() {
+    const url = this.form.controls.webhook.value.trim();
+    if (!url) return;
+    this.testandoWebhook.set(true);
+    this.webhookStatus.set(null);
+    this.api.testarWebhook(this.id(), url).subscribe({
+      next: () => {
+        this.testandoWebhook.set(false);
+        this.webhookStatus.set({ ok: true, texto: 'Mensagem de teste enviada! Confira o canal.' });
+      },
+      error: (erro) => {
+        this.testandoWebhook.set(false);
+        this.webhookStatus.set({ ok: false, texto: erro.error?.erro ?? 'Não foi possível enviar.' });
+      },
+    });
   }
 
   private ativarSalvamento() {

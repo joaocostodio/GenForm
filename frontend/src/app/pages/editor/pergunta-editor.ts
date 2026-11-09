@@ -31,6 +31,11 @@ export class PerguntaEditor implements OnInit {
 
   protected readonly tipos = TIPOS;
   protected readonly maximos = [2, 3, 4, 5, 6, 7, 8, 9, 10];
+  protected readonly estilos = [
+    { valor: 'numeros', rotulo: 'Números', icone: '1·2·3' },
+    { valor: 'estrelas', rotulo: 'Estrelas', icone: '★' },
+    { valor: 'nps', rotulo: 'NPS 0–10', icone: '◔' },
+  ] as const;
 
   protected readonly mostrarDescricao = signal(false);
   protected readonly mostrarGabarito = signal(false);
@@ -94,13 +99,15 @@ export class PerguntaEditor implements OnInit {
 
   // ---------- Menu "mais" ----------
 
-  alternar(qual: 'descricao' | 'validacao' | 'desvios', evento: Event) {
+  alternar(qual: 'descricao' | 'validacao' | 'desvios' | 'vagas', evento: Event) {
     const ligado = (evento.target as HTMLInputElement).checked;
     if (qual === 'descricao') {
       this.mostrarDescricao.set(ligado);
       if (!ligado) this.c.descricao.setValue('');
     } else if (qual === 'validacao') {
       this.c.validacao.controls.ativa.setValue(ligado);
+    } else if (qual === 'vagas') {
+      this.c.usarVagas.setValue(ligado);
     } else {
       this.c.usarDesvios.setValue(ligado);
     }

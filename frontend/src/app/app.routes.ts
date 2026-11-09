@@ -11,7 +11,7 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/responder/responder').then((m) => m.Responder) },
 
   // Precisam de login
-  { path: '', title: 'Formulários', canActivate: [exigeLogin],
+  { path: '', title: 'GenForm', canActivate: [exigeLogin],
     loadComponent: () => import('./pages/painel/painel').then((m) => m.Painel) },
   { path: 'conta', title: 'Minha conta', canActivate: [exigeLogin],
     loadComponent: () => import('./pages/conta/conta').then((m) => m.Conta) },
@@ -19,6 +19,8 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/editor/editor').then((m) => m.Editor) },
   { path: 'forms/:id/respostas', title: 'Respostas', canActivate: [exigeLogin],
     loadComponent: () => import('./pages/respostas/respostas').then((m) => m.Respostas) },
+  { path: 'forms/:id/ao-vivo', title: 'Ao vivo', canActivate: [exigeLogin],
+    loadComponent: () => import('./pages/ao-vivo/ao-vivo').then((m) => m.AoVivo) },
   { path: 'forms/:id/configuracoes', title: 'Configurações', canActivate: [exigeLogin],
     loadComponent: () => import('./pages/configuracoes/configuracoes').then((m) => m.Configuracoes) },
 

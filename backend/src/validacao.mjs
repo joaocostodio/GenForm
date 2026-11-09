@@ -1,6 +1,7 @@
 // Regras do formulário. Nunca confiamos no que chega do navegador:
 // só copiamos os campos conhecidos, com tipo e tamanho controlados.
 import { randomBytes } from 'node:crypto';
+import { urlWebhookValida } from './webhook.mjs';
 
 export const TIPOS = ['curta', 'paragrafo', 'multipla', 'caixas', 'lista', 'escala', 'data', 'hora', 'grade'];
 const TIPOS_COM_OPCOES = ['multipla', 'caixas', 'lista'];
@@ -8,6 +9,7 @@ const TIPOS_COM_DESVIO = ['multipla', 'lista'];
 const TIPOS_COM_OUTRO = ['multipla', 'caixas'];
 const TIPOS_CORRIGIVEIS = ['curta', 'multipla', 'caixas', 'lista'];
 const REGRAS_POR_TIPO = { curta: ['email', 'url', 'numero', 'tamanho'], paragrafo: ['tamanho'], caixas: ['selecao'] };
+const ESTILOS_ESCALA = ['numeros', 'estrelas', 'nps'];
 
 export const novoId = () => randomBytes(6).toString('base64url');
 
@@ -18,7 +20,7 @@ const inteiro = (valor, min, max, padrao) => {
 };
 const numeroOuNulo = (valor) => (valor === null || valor === '' || !Number.isFinite(Number(valor)) ? null : Number(valor));
 const lista = (valor, max) => (Array.isArray(valor) ? valor.slice(0, max) : []);
-const corValida = (valor) => (typeof valor === 'string' && /^#[0-9a-f]{6}$/i.test(valor) ? valor : '#673ab7');
+const corValida = (valor) => (typeof valor === 'string' && /^#[0-9a-f]{6}$/i.test(valor) ? valor : '#3ddc97');
 const bool = (valor, padrao = false) => (typeof valor === 'boolean' ? valor : padrao);
 
 // ---------- Formulário ----------
@@ -37,6 +39,9 @@ function normalizarPergunta(p = {}) {
     permitirOutro: TIPOS_COM_OUTRO.includes(tipo) && p.permitirOutro === true,
     usarDesvios: TIPOS_COM_DESVIO.includes(tipo) && p.usarDesvios === true,
     desvios: [],
+    // Vagas por opção (inscrições): quando lota, a opção some para os próximos.
+    usarVagas: TIPOS_COM_OPCOES.includes(tipo) && p.usarVagas === true,
+    vagas: [],
     escala: null,
     grade: null,
     validacao: null,
@@ -44,11 +49,23 @@ function normalizarPergunta(p = {}) {
   };
 
   if (pergunta.usarDesvios) pergunta.desvios = opcoes.map((_, i) => texto(p.desvios?.[i], 32));
+  if (pergunta.usarVagas) {
+    pergunta.vagas = opcoes.map((_, i) => {
+      const n = numeroOuNulo(p.vagas?.[i]);
+      return n !== null && n >= 1 ? Math.min(100_000, Math.floor(n)) : null;
+    });
+  }
 
   if (tipo === 'escala') {
     const e = p.escala ?? {};
-    const min = inteiro(e.min, 0, 1, 1);
-    pergunta.escala = { min, max: inteiro(e.max, min + 1, 10, 5), rotuloMin: texto(e.rotuloMin, 100), rotuloMax: texto(e.rotuloMax, 100) };
+    const estilo = ESTILOS_ESCALA.includes(e.estilo) ? e.estilo : 'numeros';
+    if (estilo === 'nps') {
+      // NPS é sempre de 0 a 10 ("De 0 a 10, quanto você recomendaria...?")
+      pergunta.escala = { estilo, min: 0, max: 10, rotuloMin: texto(e.rotuloMin, 100) || 'Nada provável', rotuloMax: texto(e.rotuloMax, 100) || 'Muito provável' };
+    } else {
+      const min = estilo === 'estrelas' ? 1 : inteiro(e.min, 0, 1, 1);
+      pergunta.escala = { estilo, min, max: inteiro(e.max, min + 1, 10, 5), rotuloMin: texto(e.rotuloMin, 100), rotuloMax: texto(e.rotuloMax, 100) };
+    }
   }
 
   if (tipo === 'grade') {
@@ -98,11 +115,22 @@ function normalizarSecoes(valor) {
   return secoes;
 }
 
+const dataOuNulo = (v) => (typeof v === 'string' && !Number.isNaN(Date.parse(v)) ? new Date(v).toISOString() : null);
+
 export function normalizarConfig(c = {}) {
-  const prazo = typeof c.dataLimite === 'string' && !Number.isNaN(Date.parse(c.dataLimite)) ? new Date(c.dataLimite).toISOString() : null;
+  const prazo = dataOuNulo(c.dataLimite);
   const limite = numeroOuNulo(c.limiteRespostas);
+  const tempo = numeroOuNulo(c.tempoLimite);
   const exigirLogin = bool(c.exigirLogin);
   return {
+    /** Só começa a aceitar respostas a partir desta data. */
+    dataAbertura: dataOuNulo(c.dataAbertura),
+    /** Código que a pessoa digita antes de responder ('' = sem código). */
+    codigoAcesso: texto(c.codigoAcesso, 100).trim(),
+    /** Cronômetro (minutos) para responder; ao zerar, envia o que tiver. */
+    tempoLimite: tempo !== null && tempo >= 1 ? Math.min(600, Math.floor(tempo)) : null,
+    /** Discord, Slack ou qualquer URL https que receba um POST a cada resposta. */
+    webhook: urlWebhookValida(c.webhook) ? c.webhook.trim() : '',
     aceitandoRespostas: bool(c.aceitandoRespostas, true),
     exigirLogin,
     umaRespostaPorPessoa: exigirLogin && bool(c.umaRespostaPorPessoa),
@@ -112,6 +140,7 @@ export function normalizarConfig(c = {}) {
     limiteRespostas: limite !== null && limite >= 1 ? Math.floor(limite) : null,
     embaralharPerguntas: bool(c.embaralharPerguntas),
     barraProgresso: bool(c.barraProgresso, true),
+    umaPorVez: bool(c.umaPorVez),
     modoTeste: bool(c.modoTeste),
     mostrarNota: bool(c.mostrarNota, true),
   };
@@ -137,8 +166,25 @@ export function atualizarForm(form, corpo = {}) {
   if ('secoes' in corpo) form.secoes = normalizarSecoes(corpo.secoes);
 }
 
-/** Versão para quem vai responder: sem gabarito nem feedback. */
-export function formPublico(form, incluirPerguntas) {
+/** Quantas respostas já escolheram cada opção da pergunta. */
+export function contarEscolhas(p, respostas = []) {
+  return p.opcoes.map((opcao) =>
+    respostas.filter((r) => {
+      const v = r.valores?.[p.id];
+      return Array.isArray(v) ? v.includes(opcao) : v === opcao;
+    }).length,
+  );
+}
+
+/** Vagas que sobram em cada opção (null = sem limite). */
+export function vagasRestantes(p, respostas = []) {
+  if (!p.usarVagas) return [];
+  const usadas = contarEscolhas(p, respostas);
+  return p.opcoes.map((_, i) => (p.vagas?.[i] == null ? null : Math.max(0, p.vagas[i] - usadas[i])));
+}
+
+/** Versão para quem vai responder: sem gabarito, feedback, código de acesso nem webhook. */
+export function formPublico(form, incluirPerguntas, respostas = []) {
   return {
     id: form.id,
     titulo: form.titulo,
@@ -149,12 +195,19 @@ export function formPublico(form, incluirPerguntas) {
       permitirOutraResposta: form.config.permitirOutraResposta,
       embaralharPerguntas: form.config.embaralharPerguntas,
       barraProgresso: form.config.barraProgresso,
+      umaPorVez: Boolean(form.config.umaPorVez),
       modoTeste: form.config.modoTeste,
+      tempoLimite: form.config.tempoLimite ?? null,
+      dataAbertura: form.config.dataAbertura ?? null,
     },
     secoes: incluirPerguntas
       ? form.secoes.map((s) => ({
           ...s,
-          perguntas: s.perguntas.map(({ quiz, ...p }) => ({ ...p, quiz: { pontos: quiz.pontos } })),
+          perguntas: s.perguntas.map(({ quiz, ...p }) => ({
+            ...p,
+            quiz: { pontos: quiz.pontos },
+            restantes: vagasRestantes(p, respostas),
+          })),
         }))
       : [],
   };
@@ -285,8 +338,10 @@ function validarValor(p, v) {
  * percorreu de verdade, seguindo a lógica condicional.
  * Devolve { valores } limpos ou { erros } por id de pergunta.
  */
-export function validarResposta(form, corpo = {}) {
+export function validarResposta(form, corpo = {}, respostas = []) {
   const entrada = corpo.valores && typeof corpo.valores === 'object' ? corpo.valores : {};
+  // Tempo do cronômetro acabou: aceita o que a pessoa conseguiu responder.
+  const tempoEsgotado = Boolean(form.config.tempoLimite) && corpo.tempoEsgotado === true;
   const valores = {};
   const erros = {};
 
@@ -294,12 +349,29 @@ export function validarResposta(form, corpo = {}) {
     for (const p of form.secoes[i].perguntas) {
       const v = entrada[p.id];
       if (vazio(v)) {
-        if (p.obrigatoria) erros[p.id] = 'Esta pergunta é obrigatória';
+        if (p.obrigatoria && !tempoEsgotado) erros[p.id] = 'Esta pergunta é obrigatória';
         continue;
       }
       const { valor, erro } = validarValor(p, v);
-      if (erro) erros[p.id] = erro;
-      else valores[p.id] = valor;
+      if (erro) {
+        if (!tempoEsgotado) erros[p.id] = erro;
+        continue;
+      }
+      // Vagas: a conferência acontece aqui, junto com a gravação, então duas
+      // pessoas nunca pegam a última vaga ao mesmo tempo.
+      if (p.usarVagas) {
+        const restantes = vagasRestantes(p, respostas);
+        const escolhidas = Array.isArray(valor) ? valor : [valor];
+        const lotada = escolhidas.find((o) => {
+          const j = p.opcoes.indexOf(o);
+          return j >= 0 && restantes[j] === 0;
+        });
+        if (lotada) {
+          if (!tempoEsgotado) erros[p.id] = `As vagas de "${lotada}" acabaram. Escolha outra opção.`;
+          continue;
+        }
+      }
+      valores[p.id] = valor;
     }
   }
 

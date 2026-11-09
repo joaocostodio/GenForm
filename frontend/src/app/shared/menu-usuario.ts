@@ -43,8 +43,10 @@ import { AuthService } from '../services/auth.service';
       height: 36px;
       border: 0;
       border-radius: 50%;
-      background: var(--cor);
-      color: #fff;
+      background: radial-gradient(circle at 35% 30%, var(--superficie-3), var(--superficie));
+      border: 1.5px solid var(--prata);
+      box-shadow: 0 0 0 2px color-mix(in srgb, var(--verde) 35%, transparent);
+      color: var(--prata-clara);
       font-weight: 700;
       cursor: pointer;
     }
@@ -56,8 +58,9 @@ import { AuthService } from '../services/auth.service';
       min-width: 240px;
       padding: 8px 0;
       border-radius: var(--raio);
-      background: #fff;
-      box-shadow: 0 4px 16px rgb(0 0 0 / 20%);
+      background: var(--superficie-2);
+      border: 1px solid var(--borda-forte);
+      box-shadow: var(--sombra);
     }
     .quem {
       display: flex;
@@ -79,7 +82,7 @@ import { AuthService } from '../services/auth.service';
     }
     .menu a:hover,
     .menu button:hover {
-      background: #f1f3f4;
+      background: var(--superficie-3);
     }
   `,
 })

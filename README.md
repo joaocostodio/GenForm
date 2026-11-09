@@ -1,6 +1,8 @@
 # GenForm
 
-**GenForm** é um clone do Google Forms feito em aula: **crie formulários, compartilhe um link e veja as respostas**.
+**GenForm** é um criador de formulários com a identidade da Hidra (escuro, verde e prata):
+**crie formulários, compartilhe um link e veja as respostas chegando ao vivo**.
+Começou como um clone do Google Forms em aula e hoje faz coisas que o Google Forms não faz.
 
 ```bash
 git clone https://github.com/joaocostodio/GenForm.git
@@ -44,6 +46,21 @@ O repositório é dividido em duas partes independentes:
 - **Produção:** o backend também entrega o Angular compilado, então tudo fica num endereço só.
 
 ## Funcionalidades
+
+### O que o GenForm tem e o Google Forms não
+
+| Recurso | Para quê |
+|---|---|
+| 📡 **Modo ao vivo** | Tela para projetar: QR code, contador, gráficos e ranking do quiz atualizando em tempo real (Server-Sent Events). |
+| ▶ **Uma pergunta por vez** | Tela cheia, atalhos de teclado (1–9 escolhe, Enter avança), ótimo no celular. |
+| 🎟 **Vagas por opção** | Inscrições: a opção mostra "restam N vagas" e fecha sozinha ao lotar (sem extensão). |
+| ★ **Estrelas e NPS** | Avaliação por estrelas com média; NPS 0–10 com o índice calculado (promotores − detratores). |
+| ⏱ **Cronômetro** | Tempo limite para responder; ao zerar, envia o que tiver. O ranking desempata por tempo. |
+| 🔒 **Código de acesso** | Só responde quem tem o código passado na sala (com limite de tentativas). |
+| 📅 **Abertura agendada** | O link mostra uma contagem regressiva e abre sozinho na hora marcada. |
+| 💾 **Rascunho automático** | Quem responde não perde nada se fechar a aba: tudo volta ao abrir de novo. |
+| 🔔 **Webhook (Discord/Slack)** | Aviso num canal a cada resposta, com botão "Testar". |
+| ⌘ **Paleta de comandos** | `Ctrl+K` para achar qualquer formulário ou ação sem usar o mouse. |
 
 **Contas**
 - Criar conta, entrar, sair, trocar nome e senha. Cada pessoa só vê e edita os próprios formulários.

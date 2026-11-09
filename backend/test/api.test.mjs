@@ -129,3 +129,153 @@ describe('formulários e respostas', () => {
     assert.equal(res.status, 403);
   });
 });
+
+describe('modo ao vivo e uma pergunta por vez', () => {
+  let cookie = '';
+  let formId;
+
+  before(async () => {
+    const res = await fetch(`${BASE}/api/auth/cadastro`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ nome: 'Prof', email: 'prof@teste.com', senha: 'senha-do-prof' }),
+    });
+    cookie = res.headers.get('set-cookie').split(';')[0];
+    const criado = await fetch(`${BASE}/api/forms`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json', cookie },
+      body: JSON.stringify({ titulo: 'Ao vivo', config: { umaPorVez: true }, secoes: [{ perguntas: [{ id: 'p1', tipo: 'curta', titulo: 'Nome?' }] }] }),
+    });
+    formId = (await criado.json()).id;
+  });
+
+  it('o link público avisa que é uma pergunta por vez', async () => {
+    const res = await fetch(`${BASE}/api/publico/${formId}`);
+    assert.equal((await res.json()).form.config.umaPorVez, true);
+  });
+
+  it('só o dono abre o canal ao vivo', async () => {
+    const res = await fetch(`${BASE}/api/forms/${formId}/ao-vivo`);
+    assert.equal(res.status, 401);
+    await res.body?.cancel();
+  });
+
+  it('manda a resposta nova na hora (SSE)', async () => {
+    const controle = new AbortController();
+    const res = await fetch(`${BASE}/api/forms/${formId}/ao-vivo`, { headers: { cookie }, signal: controle.signal });
+    assert.equal(res.status, 200);
+    assert.match(res.headers.get('content-type'), /text\/event-stream/);
+
+    const leitor = res.body.getReader();
+    const decodificador = new TextDecoder();
+    let recebido = '';
+    const esperar = async (trecho) => {
+      while (!recebido.includes(trecho)) {
+        const { value, done } = await leitor.read();
+        if (done) throw new Error('conexão fechou antes de chegar: ' + trecho);
+        recebido += decodificador.decode(value);
+      }
+    };
+
+    await esperar('"conectado"');
+    await fetch(`${BASE}/api/publico/${formId}/respostas`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ valores: { p1: 'Maria' } }),
+    });
+    await esperar('"Maria"');
+    assert.match(recebido, /"tipo":"resposta"/);
+    controle.abort();
+  });
+});
+
+describe('GenForm 2.0: vagas, código, agendamento e cronômetro', () => {
+  let cookie = '';
+  const criar = async (corpo) => {
+    const res = await fetch(`${BASE}/api/forms`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json', cookie },
+      body: JSON.stringify(corpo),
+    });
+    return (await res.json()).id;
+  };
+  const responder = (id, valores, extras = {}, cabecalhos = {}) =>
+    fetch(`${BASE}/api/publico/${id}/respostas`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json', ...cabecalhos },
+      body: JSON.stringify({ valores, ...extras }),
+    });
+
+  before(async () => {
+    const res = await fetch(`${BASE}/api/auth/cadastro`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ nome: 'Org', email: 'org@teste.com', senha: 'senha-do-org' }),
+    });
+    cookie = res.headers.get('set-cookie').split(';')[0];
+  });
+
+  it('fecha a opção quando as vagas acabam', async () => {
+    const id = await criar({
+      secoes: [{ perguntas: [{ id: 'of', tipo: 'multipla', titulo: 'Oficina', opcoes: ['A', 'B'], usarVagas: true, vagas: [1, null] }] }],
+    });
+    assert.equal((await responder(id, { of: 'A' })).status, 201);
+    const publico = await (await fetch(`${BASE}/api/publico/${id}`)).json();
+    assert.deepEqual(publico.form.secoes[0].perguntas[0].restantes, [0, null]);
+    const lotada = await responder(id, { of: 'A' });
+    assert.equal(lotada.status, 400);
+    assert.match((await lotada.json()).erros.of, /vagas/);
+    assert.equal((await responder(id, { of: 'B' })).status, 201, 'opção sem limite continua aberta');
+  });
+
+  it('pede o código de acesso e nunca o entrega no link público', async () => {
+    const id = await criar({ config: { codigoAcesso: 'TURMA42' }, secoes: [{ perguntas: [{ id: 'n', tipo: 'curta', titulo: 'Nome' }] }] });
+    const sem = await (await fetch(`${BASE}/api/publico/${id}`)).json();
+    assert.equal(sem.status, 'precisa-codigo');
+    assert.equal(JSON.stringify(sem).includes('TURMA42'), false);
+
+    const errado = await (await fetch(`${BASE}/api/publico/${id}`, { headers: { 'x-codigo-acesso': 'outro' } })).json();
+    assert.equal(errado.status, 'precisa-codigo');
+    assert.equal(errado.codigoErrado, true);
+
+    const certo = await (await fetch(`${BASE}/api/publico/${id}`, { headers: { 'x-codigo-acesso': 'TURMA42' } })).json();
+    assert.equal(certo.status, 'aberto');
+    assert.equal((await responder(id, { n: 'Ana' })).status, 403);
+    assert.equal((await responder(id, { n: 'Ana' }, {}, { 'x-codigo-acesso': 'TURMA42' })).status, 201);
+  });
+
+  it('não abre antes da data agendada', async () => {
+    const amanha = new Date(Date.now() + 86_400_000).toISOString();
+    const id = await criar({ config: { dataAbertura: amanha }, secoes: [{ perguntas: [{ id: 'n', tipo: 'curta', titulo: 'Nome' }] }] });
+    const publico = await (await fetch(`${BASE}/api/publico/${id}`)).json();
+    assert.equal(publico.status, 'agendado');
+    assert.equal(publico.form.config.dataAbertura, amanha);
+    assert.deepEqual(publico.form.secoes, [], 'não mostra as perguntas antes de abrir');
+    assert.equal((await responder(id, { n: 'Ana' })).status, 403);
+  });
+
+  it('com o tempo esgotado aceita a resposta incompleta', async () => {
+    const id = await criar({
+      config: { tempoLimite: 5 },
+      secoes: [{ perguntas: [{ id: 'a', tipo: 'curta', titulo: 'A', obrigatoria: true }, { id: 'b', tipo: 'curta', titulo: 'B', obrigatoria: true }] }],
+    });
+    assert.equal((await responder(id, { a: 'só a primeira' })).status, 400, 'normalmente exige as obrigatórias');
+    assert.equal((await responder(id, { a: 'só a primeira' }, { tempoEsgotado: true, duracaoSeg: 300 })).status, 201);
+    const lista = await (await fetch(`${BASE}/api/forms/${id}/respostas`, { headers: { cookie } })).json();
+    assert.equal(lista[0].duracaoSeg, 300);
+  });
+
+  it('NPS é sempre de 0 a 10 e webhook só aceita https público', async () => {
+    const res = await fetch(`${BASE}/api/forms`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json', cookie },
+      body: JSON.stringify({
+        config: { webhook: 'http://127.0.0.1:3000/api' },
+        secoes: [{ perguntas: [{ id: 'r', tipo: 'escala', escala: { estilo: 'nps', min: 1, max: 5 } }] }],
+      }),
+    });
+    const form = await res.json();
+    assert.deepEqual([form.secoes[0].perguntas[0].escala.min, form.secoes[0].perguntas[0].escala.max], [0, 10]);
+    assert.equal(form.config.webhook, '', 'endereço interno é recusado');
+  });
+});

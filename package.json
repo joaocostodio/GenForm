@@ -1,6 +1,6 @@
 {
   "name": "genform",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "GenForm: clone do Google Forms com backend Node/Express e frontend Angular",
   "private": true,
   "scripts": {

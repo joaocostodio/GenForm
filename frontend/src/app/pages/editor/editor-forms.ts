@@ -4,6 +4,7 @@
 import { FormArray, FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import {
   CORRIGIVEL,
+  EstiloEscala,
   Pergunta,
   REGRAS,
   RegraValidacao,
@@ -20,6 +21,8 @@ export type OpcaoForm = FormGroup<{
   texto: FormControl<string>;
   correta: FormControl<boolean>;
   irPara: FormControl<string>;
+  /** Vagas desta opção (null = sem limite). */
+  vagas: FormControl<number | null>;
 }>;
 
 export type PerguntaForm = FormGroup<{
@@ -31,7 +34,9 @@ export type PerguntaForm = FormGroup<{
   opcoes: FormArray<OpcaoForm>;
   permitirOutro: FormControl<boolean>;
   usarDesvios: FormControl<boolean>;
+  usarVagas: FormControl<boolean>;
   escala: FormGroup<{
+    estilo: FormControl<EstiloEscala>;
     min: FormControl<number>;
     max: FormControl<number>;
     rotuloMin: FormControl<string>;
@@ -61,8 +66,8 @@ export type SecaoForm = FormGroup<{
   perguntas: FormArray<PerguntaForm>;
 }>;
 
-export const criarOpcao = (texto: string, correta = false, irPara = '') =>
-  fb.group({ texto, correta, irPara });
+export const criarOpcao = (texto: string, correta = false, irPara = '', vagas: number | null = null) =>
+  fb.group({ texto, correta, irPara, vagas: fb.control<number | null>(vagas) });
 
 export const textoControl = (valor: string) => fb.control(valor);
 
@@ -77,10 +82,11 @@ export function criarPergunta(p: Pergunta): PerguntaForm {
     titulo: p.titulo,
     descricao: p.descricao,
     obrigatoria: p.obrigatoria,
-    opcoes: fb.array(p.opcoes.map((texto, i) => criarOpcao(texto, corretas.includes(texto), p.desvios[i] ?? ''))),
+    opcoes: fb.array(p.opcoes.map((texto, i) => criarOpcao(texto, corretas.includes(texto), p.desvios[i] ?? '', p.vagas?.[i] ?? null))),
     permitirOutro: p.permitirOutro,
     usarDesvios: p.usarDesvios,
-    escala: fb.group({ min: escala.min, max: escala.max, rotuloMin: escala.rotuloMin, rotuloMax: escala.rotuloMax }),
+    usarVagas: p.usarVagas ?? false,
+    escala: fb.group({ estilo: fb.control<EstiloEscala>(escala.estilo ?? 'numeros'), min: escala.min, max: escala.max, rotuloMin: escala.rotuloMin, rotuloMax: escala.rotuloMax }),
     grade: fb.group({ linhas: fb.array(grade.linhas.map(textoControl)), colunas: fb.array(grade.colunas.map(textoControl)) }),
     validacao: fb.group({
       ativa: p.validacao !== null,
@@ -94,6 +100,20 @@ export function criarPergunta(p: Pergunta): PerguntaForm {
       aceitas: p.tipo === 'curta' ? corretas.join('\n') : '',
       feedback: p.quiz.feedback ?? '',
     }),
+  });
+
+  // Estrelas começam em 1 e NPS é sempre de 0 a 10.
+  const e = grupo.controls.escala.controls;
+  e.estilo.valueChanges.subscribe((estilo) => {
+    if (estilo === 'nps') {
+      e.min.setValue(0);
+      e.max.setValue(10);
+      if (!e.rotuloMin.value) e.rotuloMin.setValue('Nada provável');
+      if (!e.rotuloMax.value) e.rotuloMax.setValue('Muito provável');
+    } else if (estilo === 'estrelas') {
+      e.min.setValue(1);
+      if (e.max.value > 10 || e.max.value < 2) e.max.setValue(5);
+    }
   });
 
   // Ao trocar o tipo, deixa a pergunta coerente com o tipo novo.
@@ -126,6 +146,7 @@ export function paraPergunta(grupo: PerguntaForm): Pergunta {
   const v = grupo.getRawValue();
   const comOpcoes = TEM_OPCOES.includes(v.tipo);
   const comDesvio = TEM_DESVIO.includes(v.tipo) && v.usarDesvios;
+  const comVagas = comOpcoes && v.usarVagas;
   const temRegra = v.validacao.ativa && (REGRAS[v.tipo] ?? []).some((r) => r.valor === v.validacao.regra);
 
   let corretas: string[] = [];
@@ -142,6 +163,8 @@ export function paraPergunta(grupo: PerguntaForm): Pergunta {
     permitirOutro: TEM_OUTRO.includes(v.tipo) && v.permitirOutro,
     usarDesvios: comDesvio,
     desvios: comDesvio ? v.opcoes.map((o) => o.irPara) : [],
+    usarVagas: comVagas,
+    vagas: comVagas ? v.opcoes.map((o) => (o.vagas && o.vagas > 0 ? Math.floor(o.vagas) : null)) : [],
     escala: v.tipo === 'escala' ? v.escala : null,
     grade: v.tipo === 'grade' ? v.grade : null,
     validacao: temRegra

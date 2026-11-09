@@ -32,3 +32,9 @@
     flex-wrap: wrap;
   }
 }
+
+.codigo {
+  width: 180px;
+  font-family: var(--mono);
+  letter-spacing: 0.06em;
+}

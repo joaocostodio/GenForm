@@ -81,3 +81,16 @@ describe('atualizarForm', () => {
     assert.equal(form.secoes.length, 2);
   });
 });
+
+describe('webhook', async () => {
+  const { urlWebhookValida } = await import('../src/webhook.mjs');
+  it('aceita https público e recusa rede interna', () => {
+    assert.equal(urlWebhookValida('https://discord.com/api/webhooks/1/abc'), true);
+    assert.equal(urlWebhookValida('http://discord.com/api/webhooks/1/abc'), false);
+    assert.equal(urlWebhookValida('https://localhost/x'), false);
+    assert.equal(urlWebhookValida('https://192.168.0.10/x'), false);
+    assert.equal(urlWebhookValida('https://10.0.0.1/x'), false);
+    assert.equal(urlWebhookValida('https://[::1]/x'), false);
+    assert.equal(urlWebhookValida('https://user:senha@exemplo.com/x'), false);
+  });
+});

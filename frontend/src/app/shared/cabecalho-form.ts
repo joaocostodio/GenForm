@@ -12,7 +12,7 @@ export type AbaForm = 'perguntas' | 'respostas' | 'configuracoes';
   template: `
     <header class="topo">
       <a routerLink="/" class="marca" title="Voltar para meus formulários">
-        <span class="logo" aria-hidden="true">≡</span>
+        <img class="logo" src="hidra.svg" alt="" />
         <span class="nome">{{ titulo() || 'Formulário sem título' }}</span>
       </a>
       <span class="status">{{ status() }}</span>
@@ -44,8 +44,9 @@ export type AbaForm = 'perguntas' | 'respostas' | 'configuracoes';
       margin-left: 4px;
       padding: 1px 7px;
       border-radius: 10px;
-      background: var(--cor);
-      color: #fff;
+      background: color-mix(in srgb, var(--cor) 18%, transparent);
+      color: var(--cor);
+      font-family: var(--mono);
       font-size: 12px;
     }
   `,

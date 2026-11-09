@@ -45,7 +45,7 @@ export class Editor implements OnInit, OnDestroy {
   protected readonly form = this.fb.group({
     titulo: '',
     descricao: '',
-    cor: '#673ab7',
+    cor: '#3ddc97',
     secoes: new FormArray<SecaoForm>([]),
   });
 

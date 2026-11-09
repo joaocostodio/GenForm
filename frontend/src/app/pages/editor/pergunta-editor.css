@@ -58,13 +58,13 @@
 }
 
 .opcao.correta .campo {
-  color: #188038;
+  color: var(--certo);
   font-weight: 600;
 }
 
 .certo-btn[aria-pressed='true'] {
-  background: #e6f4ea;
-  color: #188038;
+  background: color-mix(in srgb, var(--verde) 12%, transparent);
+  color: var(--certo);
 }
 
 .desvio {
@@ -95,11 +95,11 @@ h3 {
   margin-top: 14px;
   padding: 12px 14px;
   border-radius: var(--raio);
-  background: #f8f9fa;
+  background: var(--superficie-2);
 }
 
 .gabarito {
-  background: #e6f4ea;
+  background: color-mix(in srgb, var(--verde) 12%, transparent);
 }
 
 .sem-nota {
@@ -157,8 +157,9 @@ h3 {
   width: 290px;
   padding: 8px 0;
   border-radius: var(--raio);
-  background: #fff;
-  box-shadow: 0 4px 16px rgb(0 0 0 / 20%);
+  background: var(--superficie-2);
+  border: 1px solid var(--borda-forte);
+  box-shadow: var(--sombra);
 }
 
 .menu-mais label {
@@ -171,7 +172,7 @@ h3 {
 }
 
 .menu-mais label:hover {
-  background: #f1f3f4;
+  background: var(--superficie-3);
 }
 
 @media (max-width: 600px) {
@@ -191,4 +192,65 @@ h3 {
   .desvio {
     max-width: 120px;
   }
+}
+
+/* Estilo da escala: números, estrelas ou NPS */
+.estilos {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 4px;
+}
+
+.estilo {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border: 1px solid var(--borda-forte);
+  border-radius: 999px;
+  font-size: 13px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.estilo:hover {
+  border-color: var(--prata-escura);
+}
+
+.estilo.ativo {
+  border-color: var(--cor);
+  background: color-mix(in srgb, var(--cor) 14%, transparent);
+  color: var(--cor);
+}
+
+.estilo:has(input:focus-visible) {
+  outline: 2px solid var(--foco);
+  outline-offset: 2px;
+}
+
+.icone-estilo {
+  font-family: var(--mono);
+  font-size: 11px;
+}
+
+.estrelas-previa {
+  color: #f5c451;
+  letter-spacing: 2px;
+}
+
+/* Vagas por opção */
+.vagas {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--texto-suave);
+}
+
+.vagas input {
+  width: 70px;
+  padding: 4px 6px;
+  font-size: 13px;
 }
